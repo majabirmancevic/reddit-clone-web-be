@@ -8,6 +8,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 
+import static javax.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @Setter
@@ -22,7 +24,17 @@ public class Banned {
     @Column(nullable = false)
     private LocalDate timestamp;
 
-   // @Column(nullable = false)
-   // private Moderator by;
+    @ManyToOne(fetch = LAZY)
+    private Moderator by;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "CommunityId", referencedColumnName = "id")
+    private Community community;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "userId", referencedColumnName = "id")
+    private User user;
+
+
 
 }

@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
@@ -27,4 +30,14 @@ public class Comment {
 
     @Column(nullable = false)
     private boolean isDeleted;
+
+    @ManyToOne(fetch = LAZY)
+    private Post post;
+
+    @ManyToOne(fetch = LAZY)
+    private User user;
+
+    @OneToMany(fetch = LAZY)
+    private List<Comment> comments;
+
 }

@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+import static javax.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @Setter
@@ -17,4 +19,15 @@ public class Moderator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "userId", referencedColumnName = "id")
+    private User user;
+
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "communityId", referencedColumnName = "id")
+    private Community community;
+
 }

@@ -5,11 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-
 import javax.persistence.*;
+import java.util.List;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
@@ -24,4 +23,7 @@ public class Flair {
 
     @Column(nullable = false)
     private String name;
+
+    @ManyToMany(fetch = LAZY)
+    private List<Community> communities;
 }

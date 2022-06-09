@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.time.LocalDate;
 
 @Entity
@@ -25,6 +26,8 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Email
 
     @Column(nullable = false)
     private String email;

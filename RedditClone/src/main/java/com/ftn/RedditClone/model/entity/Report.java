@@ -8,6 +8,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 
+import static javax.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @Setter
@@ -26,10 +28,19 @@ public class Report {
     @Column(nullable = false)
     private LocalDate timestamp;
 
-    //@Column(nullable = false)
-    //private User byUser;
+    //proveriti
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "userId", referencedColumnName = "id")
+    private User byUser;
 
     @Column(nullable = false)
     private boolean accepted;
 
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "postId", referencedColumnName = "id")
+    private Post post;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "commentId", referencedColumnName = "id")
+    private Comment comment;
 }

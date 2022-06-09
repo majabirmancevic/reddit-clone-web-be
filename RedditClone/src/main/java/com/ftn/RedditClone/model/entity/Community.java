@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
@@ -30,6 +33,12 @@ public class Community {
     @Column(nullable = false)
     private boolean isSuspended;
 
-    @Column(nullable = false)
     private String suspendedReason;
+
+    @OneToMany(fetch = LAZY)
+    private List<Post> posts;
+
+    @ManyToMany(fetch = LAZY)
+    private List<Flair> flairs;
+
 }
