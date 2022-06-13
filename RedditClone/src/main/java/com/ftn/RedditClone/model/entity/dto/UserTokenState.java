@@ -1,6 +1,11 @@
 package com.ftn.RedditClone.model.entity.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 // DTO koji enkapsulira generisani JWT i njegovo trajanje koji se vracaju klijentu
+@AllArgsConstructor
+@Data
 public class UserTokenState {
 
     private String accessToken;

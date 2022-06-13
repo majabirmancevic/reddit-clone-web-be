@@ -1,9 +1,6 @@
 package com.ftn.RedditClone.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,6 +9,7 @@ import java.time.LocalDate;
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor

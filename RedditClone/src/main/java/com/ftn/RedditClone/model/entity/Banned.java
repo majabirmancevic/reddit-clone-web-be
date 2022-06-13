@@ -28,7 +28,7 @@ public class Banned {
     private Moderator by;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "CommunityId", referencedColumnName = "id")
+    @JoinColumn(name = "communityId", referencedColumnName = "id")
     private Community community;
 
     @ManyToOne(fetch = LAZY)

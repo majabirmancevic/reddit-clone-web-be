@@ -1,15 +1,15 @@
 package com.ftn.RedditClone.controller;
 
+
 import com.ftn.RedditClone.model.entity.User;
 import com.ftn.RedditClone.model.entity.dto.JwtAuthenticationRequest;
 import com.ftn.RedditClone.model.entity.dto.RegisterRequest;
 import com.ftn.RedditClone.model.entity.dto.UserTokenState;
 import com.ftn.RedditClone.security.TokenUtils;
 import com.ftn.RedditClone.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,56 +17,38 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.security.Principal;
-import java.util.List;
-
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/auth")
+@AllArgsConstructor
 public class UserController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final TokenUtils tokenUtils;
+    private final UserDetailsService userDetailsService;;
 
-    @Autowired
-    UserDetailsService userDetailsService;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
-
-    @Autowired
-    TokenUtils tokenUtils;
-
-    /* Ili preporucen nacin: Constructor Dependency Injection
-    @Autowired
-    public UserController(UserServiceImpl userService, AuthenticationManager authenticationManager,
-                          UserDetailsService userDetailsService, TokenUtils tokenUtils){
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.tokenUtils = tokenUtils;
-    }
-    */
     @PostMapping("/signup")
-    public ResponseEntity<RegisterRequest> create(@RequestBody @Validated RegisterRequest newUser){
+    public ResponseEntity<RegisterRequest> signup(@RequestBody @Validated RegisterRequest registerRequest){
 
-        User createdUser = userService.createUser(newUser);
+        User createdUser = userService.createUser(registerRequest);
 
         if(createdUser == null){
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
         RegisterRequest userDTO = new RegisterRequest(createdUser);
 
-        return new ResponseEntity<>(userDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-
     @PostMapping("/login")
-    public ResponseEntity<UserTokenState> createAuthenticationToken(
-            @RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletResponse response) {
+    public ResponseEntity<UserTokenState> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletResponse response) {
 
         // Ukoliko kredencijali nisu ispravni, logovanje nece biti uspesno, desice se
         // AuthenticationException
@@ -84,17 +66,6 @@ public class UserController {
 
         // Vrati token kao odgovor na uspesnu autentifikaciju
         return ResponseEntity.ok(new UserTokenState(jwt, expiresIn));
-    }
 
-    @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<User> loadAll() {
-        return this.userService.findAll();
-    }
-
-    @GetMapping("/whoami")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public User user(Principal user) {
-        return this.userService.findByUsername(user.getName());
     }
 }

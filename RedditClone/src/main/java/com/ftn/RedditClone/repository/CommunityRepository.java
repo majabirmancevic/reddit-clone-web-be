@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface CommunityRepository extends JpaRepository<Community, Long> {
 
-    Optional<Community> findByName(String communityName);
+    Optional<Community> findByName(String subredditName);
 }

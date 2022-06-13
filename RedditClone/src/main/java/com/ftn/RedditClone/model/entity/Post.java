@@ -1,43 +1,36 @@
 package com.ftn.RedditClone.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
 import static javax.persistence.FetchType.LAZY;
 
+@Data
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String title;
 
     @Lob
-    @Column(nullable = false)
     private String text;
 
-    @Column(nullable = false)
     private LocalDate creationDate;
 
-    @Column(nullable = false)
     private String imagePath;
 
     private Integer reactionCount = 0;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "userId", referencedColumnName = "userId")
+    @JoinColumn(name = "userId", referencedColumnName = "id")
     private User user;
 
 
@@ -45,5 +38,8 @@ public class Post {
     @JoinColumn(name = "flairId", referencedColumnName = "id")
     private Flair flair;
 
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "communityId", referencedColumnName = "id")
+    private Community community;
 
 }

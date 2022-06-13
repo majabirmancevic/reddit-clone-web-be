@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 
 @Entity
@@ -21,26 +22,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Username is required")
     private String username;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Password is required")
     private String password;
 
-    @Email
-
-    @Column(nullable = false)
+    @NotEmpty(message = "Email is required")
     private String email;
 
-    @Column(nullable = false)
     private String avatar;
 
-    @Column(nullable = false)
     private LocalDate registrationDate;
 
-    @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
     private String displayName;
 }
