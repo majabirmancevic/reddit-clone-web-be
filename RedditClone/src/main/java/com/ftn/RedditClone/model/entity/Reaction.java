@@ -22,7 +22,6 @@ public class Reaction {
     
     private ReactionType type;
 
-    @Column(nullable = false)
     private LocalDate timestamp;
 
     @NotNull

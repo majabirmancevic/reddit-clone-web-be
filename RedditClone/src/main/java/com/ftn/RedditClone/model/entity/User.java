@@ -10,8 +10,13 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
+@Table(name = "user")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,4 +43,27 @@ public class User {
     private String description;
 
     private String displayName;
+
+    @Enumerated(EnumType.STRING)
+    private Roles role;
+
+
+
+    @OneToMany(mappedBy = "user",fetch = LAZY,cascade = CascadeType.ALL)
+    private Set<Moderator> moderators = new HashSet<>();
+
+
+    public void addModerator(Moderator moderator) {
+        moderators.add(moderator);
+        moderator.setUser(this);
+    }
+
+    public void removeModerator(Moderator moderator) {
+        moderators.remove(moderator);
+        moderator.setUser(null);
+    }
+
+
+
+
 }

@@ -79,6 +79,15 @@ public class TokenUtils {
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
+/*
+    public String generateTokenWithUserName(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(Date.from(Instant.now()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .compact();
+    }
+*/
     public int getExpiredIn() {
         return expiration.intValue();
     }

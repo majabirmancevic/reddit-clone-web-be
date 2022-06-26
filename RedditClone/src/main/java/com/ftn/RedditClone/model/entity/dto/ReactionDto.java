@@ -1,17 +1,14 @@
 package com.ftn.RedditClone.model.entity.dto;
 
+import com.ftn.RedditClone.model.entity.ReactionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class AuthenticationResponse {
-    private String authenticationToken;
-    private String username;
-    private Date expiresAt;
+public class ReactionDto {
+    private ReactionType reactionType;
+    private Long postId;
 }

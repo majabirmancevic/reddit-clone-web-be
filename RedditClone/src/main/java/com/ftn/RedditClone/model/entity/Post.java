@@ -5,10 +5,12 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDate;
 
+import static javax.persistence.FetchType.EAGER;
 import static javax.persistence.FetchType.LAZY;
 
 @Data
 @Entity
+@Table(name = "post")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,7 +31,7 @@ public class Post {
 
     private Integer reactionCount = 0;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "userId", referencedColumnName = "id")
     private User user;
 
@@ -38,7 +40,7 @@ public class Post {
     @JoinColumn(name = "flairId", referencedColumnName = "id")
     private Flair flair;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "communityId", referencedColumnName = "id")
     private Community community;
 

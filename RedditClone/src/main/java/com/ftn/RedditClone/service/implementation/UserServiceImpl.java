@@ -1,32 +1,34 @@
 package com.ftn.RedditClone.service.implementation;
 
+import com.ftn.RedditClone.model.entity.Roles;
 import com.ftn.RedditClone.model.entity.User;
 import com.ftn.RedditClone.model.entity.dto.RegisterRequest;
 import com.ftn.RedditClone.repository.UserRepository;
-import com.ftn.RedditClone.repository.VerificationTokenRepository;
+import com.ftn.RedditClone.security.TokenUtils;
 import com.ftn.RedditClone.service.UserService;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 
 @Service
-@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;
+    @Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
+    TokenUtils tokenUtils;
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final VerificationTokenRepository verificationTokenRepository;
-    private final AuthenticationManager authenticationManager;
 
     @Override
-    @Transactional
     public User createUser(RegisterRequest request) {
 
 
@@ -40,18 +42,20 @@ public class UserServiceImpl implements UserService {
         newUser.setUsername(request.getUsername());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setEmail(request.getEmail());
-        newUser.setAvatar(request.getAvatar());
+    //    newUser.setAvatar(request.getAvatar());
+        newUser.setRole(Roles.USER);
         newUser.setRegistrationDate(LocalDate.now());
-        newUser.setDescription(request.getDescription());
-        newUser.setDisplayName(request.getDisplayName());
 
         userRepository.save(newUser);
 
-        //String token =
-        //generateVerificationToken(newUser);
-
         return newUser;
     }
+
+    @Override
+    public User save (User user){
+        return userRepository.save(user);
+    }
+
 
 
     @Override
@@ -62,5 +66,31 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+/*
+    @Override
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        // Ukoliko kredencijali nisu ispravni, logovanje nece biti uspesno, desice se
+        // AuthenticationException
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(), loginRequest.getPassword()));
+
+        // Ukoliko je autentifikacija uspesna, ubaci korisnika u trenutni security
+        // kontekst
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Kreiraj token za tog korisnika
+        UserDetails user = (UserDetails) authentication.getPrincipal();
+        String token = tokenUtils.generateToken(user);
+        int expiresIn = tokenUtils.getExpiredIn();
+
+        // Vrati token kao odgovor na uspesnu autentifikaciju
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .expiresAt(new Date(System.currentTimeMillis() + expiresIn))
+                .username(loginRequest.getUsername())
+                .build();
+    }
+*/
+
 
 }
