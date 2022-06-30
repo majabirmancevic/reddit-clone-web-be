@@ -47,7 +47,7 @@ public class CommunityServiceImpl implements CommunityService {
         Moderator moderator = new Moderator();
         user.addModerator(moderator);
         moderator.setCommunity(community);
-    //    community.addModerator(moderator);
+        community.addModerator(moderator);
 
         return communityDto;
     }
@@ -73,8 +73,10 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public void removeCommunity(Long id) {
-        communityRepository.deleteById(id);
+    public void removeCommunity(Long id, String suspendedReason) {
+        Community community = communityRepository.findById(id).orElseThrow(() -> new SpringRedditException("No community found with ID - " + id));
+        community.setSuspended(true);
+        community.setSuspendedReason(suspendedReason);
     }
 
     public Community findCommunity(Long id) {

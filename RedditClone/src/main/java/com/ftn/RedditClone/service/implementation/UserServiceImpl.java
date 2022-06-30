@@ -42,11 +42,10 @@ public class UserServiceImpl implements UserService {
         newUser.setUsername(request.getUsername());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setEmail(request.getEmail());
-    //    newUser.setAvatar(request.getAvatar());
         newUser.setRole(Roles.USER);
         newUser.setRegistrationDate(LocalDate.now());
 
-        userRepository.save(newUser);
+    //    userRepository.save(newUser);
 
         return newUser;
     }
@@ -56,6 +55,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
 
 
     @Override

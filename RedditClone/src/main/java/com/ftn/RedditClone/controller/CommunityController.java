@@ -41,20 +41,19 @@ public class CommunityController {
     }
 
 
-
+//  PROVERI KOJI MAPPING
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<Void> deleteCommunity(@PathVariable Long id){
+    public ResponseEntity<Void> deleteCommunity(@PathVariable Long id, @RequestBody String suspendedReason){
 
         CommunityDto community = communityService.getCommunity(id);
 
         if(community != null){
-            communityService.removeCommunity(id);
+            communityService.removeCommunity(id, suspendedReason);
             return new ResponseEntity<>(HttpStatus.OK);
         } else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 
     @PutMapping(value = "edit/{id}")
     public ResponseEntity<CommunityDto> updateCommunity(@RequestBody CommunityDto communityDto, @PathVariable Long id){

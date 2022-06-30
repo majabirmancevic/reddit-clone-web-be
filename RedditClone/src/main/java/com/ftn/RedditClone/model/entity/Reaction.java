@@ -3,7 +3,6 @@ package com.ftn.RedditClone.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 import static javax.persistence.FetchType.LAZY;
@@ -24,10 +23,14 @@ public class Reaction {
 
     private LocalDate timestamp;
 
-    @NotNull
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "postId", referencedColumnName = "id")
     private Post post;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "commentId", referencedColumnName = "id")
+    private Comment comment;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "id")

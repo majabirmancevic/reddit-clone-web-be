@@ -29,7 +29,7 @@ public class Post {
 
     private String imagePath;
 
-    private Integer reactionCount = 0;
+    private Integer reactionCount = 1;
 
     @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "userId", referencedColumnName = "id")

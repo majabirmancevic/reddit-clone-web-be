@@ -18,8 +18,8 @@ public class ReactionController {
     private final ReactionService reactionService;
 
     @PostMapping
-    public ResponseEntity<Void> vote(@RequestBody ReactionDto reactionDto) {
-        reactionService.vote(reactionDto);
+    public ResponseEntity<Void> votePost(@RequestBody ReactionDto reactionDto) {
+        reactionService.votePost(reactionDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

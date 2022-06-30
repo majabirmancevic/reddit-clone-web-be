@@ -13,11 +13,11 @@ public enum ReactionType {
     ReactionType(int direction) {
     }
 
-    public static ReactionType lookup(Integer direction) {
+    public static ReactionType vote(Integer direction) {
         return Arrays.stream(ReactionType.values())
                 .filter(value -> value.getDirection().equals(direction))
                 .findAny()
-                .orElseThrow(() -> new SpringRedditException("Vote not found"));
+                .orElseThrow(() -> new SpringRedditException("Reaction not found"));
     }
 
     public Integer getDirection() {

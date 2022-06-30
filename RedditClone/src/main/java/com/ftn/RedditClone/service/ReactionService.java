@@ -1,9 +1,10 @@
 package com.ftn.RedditClone.service;
 
+import com.ftn.RedditClone.model.entity.dto.ReactionCommentDto;
 import com.ftn.RedditClone.model.entity.dto.ReactionDto;
-import org.springframework.web.bind.annotation.RequestBody;
 
 public interface ReactionService {
 
-    void vote(@RequestBody ReactionDto reactionDto);
+    void votePost(ReactionDto reactionDto);
+    void voteComment(ReactionCommentDto reactionCommentDto);
 }

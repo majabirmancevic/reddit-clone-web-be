@@ -96,7 +96,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void removePost(Long id) {
-        postRepository.deleteById(id);
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id.toString()));
+        postRepository.delete(post);
+        post.setCommunity(null);
     }
 
 
