@@ -1,15 +1,12 @@
 package com.ftn.RedditClone.controller;
 
 
-import com.ftn.RedditClone.exceptions.SpringRedditException;
 import com.ftn.RedditClone.model.entity.User;
 import com.ftn.RedditClone.model.entity.dto.AuthenticationResponse;
 import com.ftn.RedditClone.model.entity.dto.LoginRequest;
 import com.ftn.RedditClone.model.entity.dto.RegisterRequest;
 import com.ftn.RedditClone.security.TokenUtils;
 import com.ftn.RedditClone.service.UserService;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +18,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Date;
-import java.util.Optional;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -50,12 +42,11 @@ public class UserController {
     ServletContext context;
 
     @PostMapping("/signup")
-    public ResponseEntity<RegisterRequest> signup(@RequestBody @Validated RegisterRequest registerRequest,
-                                                  @RequestParam("file") MultipartFile file)
+    public ResponseEntity<RegisterRequest> signup(@RequestBody @Validated RegisterRequest registerRequest)
     {
 
         User createdUser = userService.createUser(registerRequest);
-
+/*
         boolean isExit = new File(context.getRealPath("/Photos")).exists();
         if (!isExit)
         {
@@ -74,9 +65,7 @@ public class UserController {
             e.printStackTrace();
         }
         createdUser.setAvatar(newFileName);
-
-        userService.save(createdUser);
-
+*/
         if(createdUser == null){
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
@@ -85,21 +74,25 @@ public class UserController {
         return new ResponseEntity<>(userDTO, OK);
     }
 
+/*
     @GetMapping(path="/image/{id}")
     public byte[] getPhoto(@PathVariable("id") Long id) throws IOException {
         User User   =userService.findById(id)
-                .orElseThrow(() -> new SpringRedditException("No photo found with ID - " + id));;
+                .orElseThrow(() -> new SpringRedditException("No photo found with ID - " + id));
         return Files.readAllBytes(Paths.get(context.getRealPath("/Photos/")+User.getAvatar()));
     }
-
+*/
     @PutMapping("/users/{id}")
-    public void update(@PathVariable long id, @RequestBody User User) {
-        Optional<User> user = userService.findById(id);
-        if (user.isPresent()) {
-            userService.update(id, User);
-        } else {
-            userService.save(User);
+    public ResponseEntity<RegisterRequest> update(@PathVariable Long id, @RequestBody RegisterRequest registerRequest) {
+
+        User user = userService.update(id, registerRequest);
+
+        if(user == null){
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
+        RegisterRequest userDTO = new RegisterRequest(user);
+
+        return new ResponseEntity<>(userDTO, OK);
     }
 
     @PostMapping("/login")
@@ -121,8 +114,15 @@ public class UserController {
 
         return ResponseEntity.ok(new AuthenticationResponse(token, user.getUsername(),new Date(System.currentTimeMillis() + expiresIn)));
 
-
     }
 
+    @GetMapping("/loggedUser/{username}")
+    public User user(@PathVariable String username) {
+        return this.userService.findByUsername(username);
+    }
 
+    @GetMapping("/allUsers")
+    public List<User> loadAll() {
+        return this.userService.findAll();
+    }
 }

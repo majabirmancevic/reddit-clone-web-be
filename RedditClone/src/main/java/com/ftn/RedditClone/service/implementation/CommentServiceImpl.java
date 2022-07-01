@@ -1,6 +1,7 @@
 package com.ftn.RedditClone.service.implementation;
 
 import com.ftn.RedditClone.exceptions.PostNotFoundException;
+import com.ftn.RedditClone.exceptions.SpringRedditException;
 import com.ftn.RedditClone.mapper.CommentMapper;
 import com.ftn.RedditClone.model.entity.Comment;
 import com.ftn.RedditClone.model.entity.Post;
@@ -35,7 +36,7 @@ public class CommentServiceImpl implements CommentService {
     CommentRepository commentRepository;
 
     @Override
-    public void save(CommentDTO commentDto) {
+    public CommentDTO save(CommentDTO commentDto) {
         Post post = postRepository.findById(commentDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException(commentDto.getPostId().toString()));
 
@@ -49,6 +50,7 @@ public class CommentServiceImpl implements CommentService {
         comment.addComment(comment);
         commentRepository.save(comment);
 
+        return commentMapper.mapToDto(comment);
     }
 
     @Override
@@ -77,5 +79,17 @@ public class CommentServiceImpl implements CommentService {
         comment.setDeleted(true);
         comment.setPost(null);
         comment.setUser(null);
+    }
+
+    @Override
+    public CommentDTO getComment(Long id) {
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new SpringRedditException("No community found with ID - " + id));
+        return commentMapper.mapToDto(comment);
+    }
+
+    @Override
+    public Comment findComment(Long id) {
+        return commentRepository.findById(id).orElseGet(null);
     }
 }

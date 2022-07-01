@@ -86,6 +86,16 @@ public class ReactionServiceImpl implements ReactionService {
         commentRepository.save(comment);
     }
 
+    @Override
+    public int getKarma(Long userId) {
+
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new PostNotFoundException("User Not Found with ID - " + userId));
+
+        return reactionRepository.findAllByUser(user).size();
+    }
+
+
     private Reaction mapToReaction(ReactionDto reactionDto, Post post) {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

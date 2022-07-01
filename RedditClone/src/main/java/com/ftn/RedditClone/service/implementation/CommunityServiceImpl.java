@@ -66,6 +66,7 @@ public class CommunityServiceImpl implements CommunityService {
                 .collect(toList());
     }
 
+    @Override
     public CommunityDto getCommunity(Long id) {
         Community community = communityRepository.findById(id)
                 .orElseThrow(() -> new SpringRedditException("No community found with ID - " + id));
@@ -79,6 +80,7 @@ public class CommunityServiceImpl implements CommunityService {
         community.setSuspendedReason(suspendedReason);
     }
 
+    @Override
     public Community findCommunity(Long id) {
         return communityRepository.findById(id).orElseGet(null);
     }

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.FetchType.EAGER;
 
 @Entity
 @Table(name = "user")
@@ -49,7 +49,7 @@ public class User {
 
 
 
-    @OneToMany(mappedBy = "user",fetch = LAZY,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",fetch = EAGER,cascade = CascadeType.ALL)
     private Set<Moderator> moderators = new HashSet<>();
 
 

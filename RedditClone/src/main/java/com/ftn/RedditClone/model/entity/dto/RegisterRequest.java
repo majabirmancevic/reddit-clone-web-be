@@ -14,12 +14,15 @@ public class RegisterRequest {
     private String email;
     private String username;
     private String password;
-    private String avatar;
     private String description;
     private String displayName;
 
     public RegisterRequest(User createdUser) {
         this.id = createdUser.getId();
+        this.email = createdUser.getEmail();
         this.username = createdUser.getUsername();
+        this.password = createdUser.getPassword();
+        this.description = createdUser.getDescription();
+        this.displayName = createdUser.getDisplayName();
     }
 }

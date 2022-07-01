@@ -3,6 +3,7 @@ package com.ftn.RedditClone.service;
 import com.ftn.RedditClone.model.entity.User;
 import com.ftn.RedditClone.model.entity.dto.RegisterRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -12,6 +13,6 @@ public interface UserService {
 //    AuthenticationResponse login(LoginRequest loginRequest);
     User save (User user);
     Optional<User> findById(Long id);
-    void update(Long id, User user);
-
+    User update(Long id, RegisterRequest registerRequest);
+    List<User> findAll();
 }
