@@ -41,6 +41,12 @@ public class CommunityController {
                 .body(communityService.getCommunity(id));
     }
 
+    @GetMapping("byName/{name}")
+    public ResponseEntity<CommunityDto> getCommunityByName(@PathVariable String name) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(communityService.getCommunityByName(name));
+    }
 
 //  PROVERI KOJI MAPPING
     @PreAuthorize("hasRole('ADMIN')")

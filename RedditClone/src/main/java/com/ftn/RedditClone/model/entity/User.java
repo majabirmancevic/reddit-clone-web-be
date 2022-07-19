@@ -28,6 +28,7 @@ public class User {
     private Long id;
 
     @NotBlank(message = "Username is required")
+    @Column(unique = true)
     private String username;
 
     @NotBlank(message = "Password is required")
@@ -49,7 +50,7 @@ public class User {
 
 
 
-    @OneToMany(mappedBy = "user",fetch = EAGER,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",fetch = EAGER, cascade = CascadeType.ALL)
     private Set<Moderator> moderators = new HashSet<>();
 
 
@@ -62,8 +63,6 @@ public class User {
         moderators.remove(moderator);
         moderator.setUser(null);
     }
-
-
 
 
 }

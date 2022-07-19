@@ -29,7 +29,7 @@ public class ReactionController {
     }
 
     @GetMapping("voter/{id}")
-    public int getKarma(@PathVariable Long voterId){
-        return reactionService.getKarma(voterId);
+    public int getKarma(@PathVariable Long id){
+        return reactionService.getKarma(id);
     }
 }

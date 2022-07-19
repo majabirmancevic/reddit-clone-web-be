@@ -117,8 +117,15 @@ public class UserController {
     }
 
     @GetMapping("/loggedUser/{username}")
-    public User user(@PathVariable String username) {
-        return this.userService.findByUsername(username);
+    public ResponseEntity<User> user(@PathVariable String username) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.findByUsername(username));
+    }
+
+    @GetMapping("/user/{id}")
+    public User user(@PathVariable Long id) {
+        return this.userService.findById(id);
     }
 
     @GetMapping("/allUsers")

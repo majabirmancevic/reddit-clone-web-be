@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,7 +25,6 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @AllArgsConstructor
-@Transactional
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
@@ -77,10 +75,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostResponse> getPostsByCommunityId(Long communityId) {
-    //    Community community = communityRepository.findById(communityId)
-    //            .orElseThrow(() -> new CommunityNotFoundException(communityId.toString()));
-        List<Post> posts = postRepository.findAllByCommunityId(communityId);
+    public List<PostResponse> getPostsByCommunity(Long communityId) {
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new CommunityNotFoundException(communityId.toString()));
+        List<Post> posts = postRepository.findAllByCommunity(community);
         return posts.stream().map(postMapper::mapToDto).collect(toList());
     }
 

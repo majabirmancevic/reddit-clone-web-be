@@ -6,7 +6,6 @@ import com.ftn.RedditClone.repository.CommentRepository;
 import com.ftn.RedditClone.repository.ReactionRepository;
 import com.ftn.RedditClone.security.TokenUtils;
 import com.ftn.RedditClone.service.UserService;
-import com.github.marlonlom.utilities.timeago.TimeAgo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +39,12 @@ public abstract  class CommentMapper {
 
     @Mapping(target = "postId", expression = "java(comment.getPost().getId())")
     @Mapping(target = "userName", expression = "java(comment.getUser().getUsername())")
-    @Mapping(target = "timestamp", expression = "java(getDuration(comment))")
+    @Mapping(target = "timestamp", source = "timestamp")
     @Mapping(target = "upVote", expression = "java(isCommentUpVoted(comment))")
     @Mapping(target = "downVote", expression = "java(isCommentDownVoted(comment))")
     public abstract CommentDTO mapToDto(Comment comment);
 
-    String getDuration(Comment comment) {
-        return TimeAgo.using(comment.getTimestamp().toEpochDay());
-    }
+
 
     private boolean checkVoteType(Comment comment, ReactionType reactionType) {
         if (tokenUtils.isLoggedIn()) {

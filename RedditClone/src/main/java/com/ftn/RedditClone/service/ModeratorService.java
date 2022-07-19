@@ -5,4 +5,5 @@ import com.ftn.RedditClone.model.entity.User;
 
 public interface ModeratorService {
     Moderator findModeratorByUser(User user);
+    void save (Moderator moderator);
 }

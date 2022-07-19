@@ -1,5 +1,6 @@
 package com.ftn.RedditClone.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,10 +23,12 @@ public class Moderator {
     private Long id;
 
     @ManyToOne(fetch = EAGER)
-    @JoinColumn(name = "communityId", referencedColumnName = "id")
+    @JoinColumn(name = "communityId")
+    @JsonBackReference
     private Community community ;
 
     @ManyToOne(fetch = EAGER)
-    @JoinColumn(name = "userId",referencedColumnName = "id")
+    @JoinColumn(name = "userId")
+    @JsonBackReference
     private  User user;
 }

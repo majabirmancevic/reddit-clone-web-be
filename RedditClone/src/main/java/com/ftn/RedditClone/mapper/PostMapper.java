@@ -7,7 +7,6 @@ import com.ftn.RedditClone.repository.CommentRepository;
 import com.ftn.RedditClone.repository.ReactionRepository;
 import com.ftn.RedditClone.security.TokenUtils;
 import com.ftn.RedditClone.service.UserService;
-import com.github.marlonlom.utilities.timeago.TimeAgo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public abstract  class PostMapper {
     @Mapping(target = "communityName", source = "community.name")
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "commentCount", expression = "java(commentCount(post))")
-    @Mapping(target = "duration", expression = "java(getDuration(post))")
+    @Mapping(target = "duration", source = "creationDate")
     @Mapping(target = "upVote", expression = "java(isPostUpVoted(post))")
     @Mapping(target = "downVote", expression = "java(isPostDownVoted(post))")
     public abstract PostResponse mapToDto(Post post);
@@ -53,10 +52,12 @@ public abstract  class PostMapper {
     Integer commentCount(Post post) {
         return commentRepository.findByPost(post).size();
     }
-
+/*
     String getDuration(Post post) {
         return TimeAgo.using(post.getCreationDate().toEpochDay());
     }
+
+ */
 
     private boolean checkVoteType(Post post, ReactionType reactionType) {
         if (tokenUtils.isLoggedIn()) {

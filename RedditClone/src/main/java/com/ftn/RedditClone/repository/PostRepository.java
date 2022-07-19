@@ -1,5 +1,6 @@
 package com.ftn.RedditClone.repository;
 
+import com.ftn.RedditClone.model.entity.Community;
 import com.ftn.RedditClone.model.entity.Post;
 import com.ftn.RedditClone.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findAllByCommunityId(Long communityId);
+    List<Post> findAllByCommunity(Community community);
     List<Post> findByUser(User user);
 
 

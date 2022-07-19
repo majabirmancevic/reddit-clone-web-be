@@ -32,7 +32,7 @@ public class Post {
     private Integer reactionCount = 1;
 
     @ManyToOne(fetch = EAGER)
-    @JoinColumn(name = "userId", referencedColumnName = "id")
+    @JoinColumn(name = "userId")
     private User user;
 
 
@@ -41,7 +41,7 @@ public class Post {
     private Flair flair;
 
     @ManyToOne(fetch = EAGER)
-    @JoinColumn(name = "communityId", referencedColumnName = "id")
+    @JoinColumn(name = "communityId")
     private Community community;
 
 }

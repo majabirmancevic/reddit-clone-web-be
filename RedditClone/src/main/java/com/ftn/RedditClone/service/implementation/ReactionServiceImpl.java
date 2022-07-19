@@ -89,8 +89,7 @@ public class ReactionServiceImpl implements ReactionService {
     @Override
     public int getKarma(Long userId) {
 
-        User user = userService.findById(userId)
-                .orElseThrow(() -> new PostNotFoundException("User Not Found with ID - " + userId));
+        User user = userService.findById(userId);
 
         return reactionRepository.findAllByUser(user).size();
     }

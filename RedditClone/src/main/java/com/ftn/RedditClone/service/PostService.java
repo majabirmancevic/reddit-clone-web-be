@@ -13,7 +13,7 @@ public interface PostService {
     PostResponse getPost(Long id);
     Post findPost(Long id);
     List<PostResponse> getAllPosts();
-    List<PostResponse> getPostsByCommunityId(Long communityId);
+    List<PostResponse> getPostsByCommunity(Long communityId);
     List<PostResponse> getPostsByUsername(String username);
     void removePost(Long id);
 

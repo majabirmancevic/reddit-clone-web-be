@@ -16,4 +16,9 @@ public class ModeratorServiceImpl implements ModeratorService {
     public Moderator findModeratorByUser(User user) {
         return moderatorRepository.findModeratorByUser(user);
     }
+
+    @Override
+    public void save(Moderator moderator) {
+        moderatorRepository.save(moderator);
+    }
 }

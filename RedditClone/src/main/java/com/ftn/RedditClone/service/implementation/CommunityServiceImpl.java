@@ -10,45 +10,55 @@ import com.ftn.RedditClone.repository.CommunityRepository;
 import com.ftn.RedditClone.service.CommunityService;
 import com.ftn.RedditClone.service.ModeratorService;
 import com.ftn.RedditClone.service.UserService;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
 @Service
-@AllArgsConstructor
 public class CommunityServiceImpl implements CommunityService {
 
-    @Autowired
     CommunityRepository communityRepository;
-    @Autowired
+
     CommunityMapper communityMapper;
-    @Autowired
+
     UserService userService;
-    @Autowired
+
     ModeratorService moderatorService;
 
-    @Transactional
+    public CommunityServiceImpl (CommunityRepository communityRepository, CommunityMapper communityMapper, UserService userService,ModeratorService moderatorService){
+        this.communityMapper = communityMapper;
+        this.communityRepository = communityRepository;
+        this.userService = userService;
+        this.moderatorService = moderatorService;
+    }
+
     public CommunityDto save(CommunityDto communityDto){
         Community community =  communityMapper.mapDtoToSubreddit(communityDto);
         communityDto.setId(community.getId());
+        community.setCreationDate(String.valueOf(LocalDate.now()));
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = ((UserDetails) principal).getUsername();
         User user = userService.findByUsername(username);
 
-        communityRepository.save(community);
-        Moderator moderator = new Moderator();
-        user.addModerator(moderator);
-        moderator.setCommunity(community);
-        community.addModerator(moderator);
+        community.setUser(user);
 
+        Moderator moderator = new Moderator();
+
+        moderator.setUser(user);
+        moderator.setCommunity(community);
+
+//        user.addModerator(moderator);
+//        community.addModerator(moderator);
+
+
+        communityRepository.save(community);
+        //        moderatorService.save(moderator);
         return communityDto;
     }
 
@@ -58,7 +68,6 @@ public class CommunityServiceImpl implements CommunityService {
         return comm;
     }
 
-    @Transactional(readOnly = true)
     public List<CommunityDto> getAll() {
         return communityRepository.findAll()
                 .stream()
@@ -70,6 +79,12 @@ public class CommunityServiceImpl implements CommunityService {
     public CommunityDto getCommunity(Long id) {
         Community community = communityRepository.findById(id)
                 .orElseThrow(() -> new SpringRedditException("No community found with ID - " + id));
+        return communityMapper.mapSubredditToDto(community);
+    }
+
+    @Override
+    public CommunityDto getCommunityByName(String name) {
+        Community community = communityRepository.findByName(name).orElseThrow(() -> new SpringRedditException("No community found with name - " + name));
         return communityMapper.mapSubredditToDto(community);
     }
 

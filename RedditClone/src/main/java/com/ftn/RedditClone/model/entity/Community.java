@@ -1,5 +1,6 @@
 package com.ftn.RedditClone.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,6 +26,7 @@ public class Community {
     private Long id;
 
     @NotBlank(message = "Community name is required")
+    @Column(unique = true)
     private String name;
 
     @NotBlank(message = "Description is required")
@@ -37,6 +39,7 @@ public class Community {
     private String suspendedReason;
 
     @OneToMany(mappedBy = "community",fetch = EAGER,cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Post> posts;
 
     @ManyToMany(fetch = LAZY)
@@ -56,7 +59,8 @@ public class Community {
     }
 
 
-    @OneToMany(mappedBy = "community",fetch = LAZY)
+    @OneToMany(mappedBy = "community",fetch = EAGER,cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Set<Moderator> moderators = new HashSet<Moderator>();;
 
     public void addModerator(Moderator moderator) {
