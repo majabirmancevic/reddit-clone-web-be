@@ -36,12 +36,13 @@ public abstract  class PostMapper {
     @Mapping(target = "title", source = "postRequest.postName")
     @Mapping(target = "community", source = "community")
     @Mapping(target = "user", source = "user")
-    @Mapping(target = "reactionCount", constant = "1")
+    @Mapping(target = "reactionCount", constant = "0")
     public abstract Post map(PostRequest postRequest, Community community, User user);
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "postName", source = "title")
     @Mapping(target = "communityName", source = "community.name")
+    @Mapping(target = "text", source = "text")
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "commentCount", expression = "java(commentCount(post))")
     @Mapping(target = "duration", source = "creationDate")
@@ -59,6 +60,15 @@ public abstract  class PostMapper {
 
  */
 
+
+    boolean isPostUpVoted(Post post) {
+        return checkVoteType(post, UPVOTE);
+    }
+
+    boolean isPostDownVoted(Post post) {
+        return checkVoteType(post, DOWNVOTE);
+    }
+
     private boolean checkVoteType(Post post, ReactionType reactionType) {
         if (tokenUtils.isLoggedIn()) {
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -71,13 +81,5 @@ public abstract  class PostMapper {
                     .isPresent();
         }
         return false;
-    }
-
-    boolean isPostUpVoted(Post post) {
-        return checkVoteType(post, UPVOTE);
-    }
-
-    boolean isPostDownVoted(Post post) {
-        return checkVoteType(post, DOWNVOTE);
     }
 }

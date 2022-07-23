@@ -30,19 +30,19 @@ public class CommentsController {
                 .body(commentService.save(commentDto));
     }
 
-    @GetMapping("/byPost/{postId}")
+    @GetMapping("byPost/{postId}")
     public ResponseEntity<List<CommentDTO>> getAllCommentsForPost(@PathVariable Long postId) {
         return ResponseEntity.status(OK)
                 .body(commentService.getAllCommentsFromPost(postId));
     }
 
-    @GetMapping("/byUser/{userName}")
+    @GetMapping("byUser/{userName}")
     public ResponseEntity<List<CommentDTO>> getAllCommentsForUser(@PathVariable String userName){
         return ResponseEntity.status(OK)
                 .body(commentService.getAllCommentsFromUser(userName));
     }
 
-    @DeleteMapping(value = "{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> deleteCommunity(@PathVariable Long id){
 
         CommentDTO commentDTO = commentService.getComment(id);

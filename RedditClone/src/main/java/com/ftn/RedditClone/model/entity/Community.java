@@ -43,6 +43,10 @@ public class Community {
     private List<Post> posts;
 
     @ManyToMany(fetch = LAZY)
+    @JoinTable(
+            name = "community_flair",
+            joinColumns = @JoinColumn(name = "community_id"),
+            inverseJoinColumns = @JoinColumn(name = "flair_id"))
     private List<Flair> flairs;
 
     @ManyToOne(fetch = LAZY)

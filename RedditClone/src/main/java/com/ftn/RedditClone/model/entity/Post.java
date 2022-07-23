@@ -1,9 +1,13 @@
 package com.ftn.RedditClone.model.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 import static javax.persistence.FetchType.EAGER;
 import static javax.persistence.FetchType.LAZY;
@@ -29,7 +33,7 @@ public class Post {
 
     private String imagePath;
 
-    private Integer reactionCount = 1;
+    private Integer reactionCount = 0;
 
     @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "userId")
@@ -43,5 +47,8 @@ public class Post {
     @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "communityId")
     private Community community;
+
+    @OneToMany(fetch = EAGER, mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comment> comments;
 
 }

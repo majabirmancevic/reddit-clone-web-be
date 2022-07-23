@@ -34,7 +34,8 @@ public abstract  class CommentMapper {
     @Mapping(target = "timestamp", expression = "java(java.time.LocalDate.now())")
     @Mapping(target = "post", source = "post")
     @Mapping(target = "user", source = "user")
-    @Mapping(target = "reactionCount", constant = "1")
+    @Mapping(target = "reactionCount", constant = "0")
+    @Mapping(target = "parentId", source = "commentDto.parentId")
     public abstract Comment map(CommentDTO commentDto, Post post, User user);
 
     @Mapping(target = "postId", expression = "java(comment.getPost().getId())")
@@ -42,6 +43,8 @@ public abstract  class CommentMapper {
     @Mapping(target = "timestamp", source = "timestamp")
     @Mapping(target = "upVote", expression = "java(isCommentUpVoted(comment))")
     @Mapping(target = "downVote", expression = "java(isCommentDownVoted(comment))")
+    @Mapping(target = "userId", expression = "java(comment.getUser().getId())")
+    @Mapping(target = "parentId", source = "parentId")
     public abstract CommentDTO mapToDto(Comment comment);
 
 

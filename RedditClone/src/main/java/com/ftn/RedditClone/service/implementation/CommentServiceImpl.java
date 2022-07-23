@@ -47,7 +47,6 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentMapper.map(commentDto, post, user);
         comment.setDeleted(false);
 
-        comment.addComment(comment);
         commentRepository.save(comment);
 
         return commentMapper.mapToDto(comment);
@@ -73,12 +72,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void removeComment(Long id) {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id.toString()));
-        //        commentRepository.delete(comment);
-        comment.removeComment(comment);
-        comment.setDeleted(true);
-        comment.setPost(null);
-        comment.setUser(null);
+        commentRepository.deleteById(id);
+        //Comment comment = commentRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id.toString()));
+        //commentRepository.delete(comment);
+        //comment.removeComment(comment);
+        //comment.setDeleted(true);
+        //comment.setPost(null);
+        //comment.setUser(null);
     }
 
     @Override

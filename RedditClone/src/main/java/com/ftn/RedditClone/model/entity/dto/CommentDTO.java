@@ -12,6 +12,8 @@ public class CommentDTO {
     private String timestamp;
     private String text;
     private String userName;
+    private Long userId;
+    private Long parentId;
     //new
 
     private boolean upVote;

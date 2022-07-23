@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static javax.persistence.FetchType.EAGER;
-import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
@@ -24,6 +23,8 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long parentId;
+
     @NotEmpty
     private String text;
 
@@ -33,13 +34,15 @@ public class Comment {
 
     private Integer reactionCount = 1;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "postId", referencedColumnName = "id")
     private Post post;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "userId", referencedColumnName = "id")
     private User user;
+
+
 
     @OneToMany(fetch = EAGER)
     private List<Comment> comments;
@@ -47,7 +50,7 @@ public class Comment {
 
     public void addComment(Comment comment) {
         comments.add(comment);
-    //    comment.setComment(this);
+        comment.setComments(comments);
     }
 
     public void removeComment(Comment comment) {

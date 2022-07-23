@@ -8,8 +8,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.List;
 
-import static javax.persistence.FetchType.LAZY;
-
 @Entity
 @Getter
 @Setter
@@ -24,6 +22,6 @@ public class Flair {
     @Column(nullable = false)
     private String name;
 
-    @ManyToMany(fetch = LAZY)
+    @ManyToMany(mappedBy = "flairs")
     private List<Community> communities;
 }
