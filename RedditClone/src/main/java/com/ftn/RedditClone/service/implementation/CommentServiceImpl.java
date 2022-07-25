@@ -3,12 +3,11 @@ package com.ftn.RedditClone.service.implementation;
 import com.ftn.RedditClone.exceptions.PostNotFoundException;
 import com.ftn.RedditClone.exceptions.SpringRedditException;
 import com.ftn.RedditClone.mapper.CommentMapper;
-import com.ftn.RedditClone.model.entity.Comment;
-import com.ftn.RedditClone.model.entity.Post;
-import com.ftn.RedditClone.model.entity.User;
+import com.ftn.RedditClone.model.entity.*;
 import com.ftn.RedditClone.model.entity.dto.CommentDTO;
 import com.ftn.RedditClone.repository.CommentRepository;
 import com.ftn.RedditClone.repository.PostRepository;
+import com.ftn.RedditClone.repository.ReactionRepository;
 import com.ftn.RedditClone.repository.UserRepository;
 import com.ftn.RedditClone.service.CommentService;
 import com.ftn.RedditClone.service.UserService;
@@ -18,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -34,6 +34,8 @@ public class CommentServiceImpl implements CommentService {
     CommentMapper commentMapper;
     @Autowired
     CommentRepository commentRepository;
+    @Autowired
+    ReactionRepository reactionRepository;
 
     @Override
     public CommentDTO save(CommentDTO commentDto) {
@@ -47,8 +49,15 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentMapper.map(commentDto, post, user);
         comment.setDeleted(false);
 
-        commentRepository.save(comment);
+        Reaction reaction = new Reaction();
+        reaction.setType(ReactionType.UPVOTE);
+        reaction.setPost(null);
+        reaction.setUser(user);
+        reaction.setComment(comment);
+        reaction.setTimestamp(LocalDate.now());
 
+        commentRepository.save(comment);
+        reactionRepository.save(reaction);
         return commentMapper.mapToDto(comment);
     }
 

@@ -16,6 +16,7 @@ public class RegisterRequest {
     private String password;
     private String description;
     private String displayName;
+    private String avatar;
 
     public RegisterRequest(User createdUser) {
         this.id = createdUser.getId();
@@ -24,5 +25,6 @@ public class RegisterRequest {
         this.password = createdUser.getPassword();
         this.description = createdUser.getDescription();
         this.displayName = createdUser.getDisplayName();
+        this.avatar = createdUser.getAvatar();
     }
 }

@@ -36,7 +36,8 @@ public abstract  class PostMapper {
     @Mapping(target = "title", source = "postRequest.postName")
     @Mapping(target = "community", source = "community")
     @Mapping(target = "user", source = "user")
-    @Mapping(target = "reactionCount", constant = "0")
+    @Mapping(target = "reactionCount", constant = "1")
+    @Mapping(target = "imagePath", source = "postRequest.imagePath")
     public abstract Post map(PostRequest postRequest, Community community, User user);
 
     @Mapping(target = "id", source = "id")

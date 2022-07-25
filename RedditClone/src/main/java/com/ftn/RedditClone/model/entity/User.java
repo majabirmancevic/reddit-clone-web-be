@@ -37,6 +37,7 @@ public class User {
     @NotEmpty(message = "Email is required")
     private String email;
 
+    @Lob
     private String avatar;
 
     private LocalDate registrationDate;

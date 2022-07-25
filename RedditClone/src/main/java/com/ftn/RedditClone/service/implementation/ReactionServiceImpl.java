@@ -6,7 +6,6 @@ import com.ftn.RedditClone.model.entity.Comment;
 import com.ftn.RedditClone.model.entity.Post;
 import com.ftn.RedditClone.model.entity.Reaction;
 import com.ftn.RedditClone.model.entity.User;
-import com.ftn.RedditClone.model.entity.dto.ReactionCommentDto;
 import com.ftn.RedditClone.model.entity.dto.ReactionDto;
 import com.ftn.RedditClone.repository.CommentRepository;
 import com.ftn.RedditClone.repository.PostRepository;
@@ -37,8 +36,8 @@ public class ReactionServiceImpl implements ReactionService {
 
     @Override
     public void votePost(ReactionDto reactionDto) {
-        Post post = postRepository.findById(reactionDto.getPostId())
-                .orElseThrow(() -> new PostNotFoundException("Post Not Found with ID - " + reactionDto.getPostId()));
+        Post post = postRepository.findById(reactionDto.getId())
+                .orElseThrow(() -> new PostNotFoundException("Post Not Found with ID - " + reactionDto.getId()));
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = ((UserDetails) principal).getUsername();
@@ -61,9 +60,9 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
-    public void voteComment(ReactionCommentDto reactionCommentDto) {
-       Comment comment = commentRepository.findById(reactionCommentDto.getCommentId())
-               .orElseThrow(() -> new PostNotFoundException("Post Not Found with ID - " + reactionCommentDto.getCommentId()));
+    public void voteComment(ReactionDto reactionCommentDto) {
+       Comment comment = commentRepository.findById(reactionCommentDto.getId())
+               .orElseThrow(() -> new PostNotFoundException("Post Not Found with ID - " + reactionCommentDto.getId()));
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = ((UserDetails) principal).getUsername();
         User user = userService.findByUsername(username);
@@ -109,14 +108,14 @@ public class ReactionServiceImpl implements ReactionService {
                 .build();
     }
 
-    private Reaction mapToReactionComment(ReactionCommentDto reactionCommentDto, Comment comment) {
+    private Reaction mapToReactionComment(ReactionDto reactionDto, Comment comment) {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = ((UserDetails) principal).getUsername();
         User user = userService.findByUsername(username);
 
         return Reaction.builder()
-                .type(reactionCommentDto.getReactionType())
+                .type(reactionDto.getReactionType())
                 .timestamp(LocalDate.now())
                 .comment(comment)
                 .user(user)

@@ -1,6 +1,5 @@
 package com.ftn.RedditClone.controller;
 
-import com.ftn.RedditClone.model.entity.dto.ReactionCommentDto;
 import com.ftn.RedditClone.model.entity.dto.ReactionDto;
 import com.ftn.RedditClone.service.ReactionService;
 import lombok.AllArgsConstructor;
@@ -23,7 +22,7 @@ public class ReactionController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @PostMapping("comment")
-    public ResponseEntity<Void> voteComment(@RequestBody ReactionCommentDto reactionDto) {
+    public ResponseEntity<Void> voteComment(@RequestBody ReactionDto reactionDto) {
         reactionService.voteComment(reactionDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }

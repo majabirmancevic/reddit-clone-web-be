@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
         newUser.setUsername(request.getUsername());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setEmail(request.getEmail());
+        newUser.setAvatar(request.getAvatar());
         newUser.setRole(Roles.USER);
         newUser.setRegistrationDate(LocalDate.now());
 
@@ -72,6 +73,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
         user.setDescription(request.getDescription());
         user.setDisplayName(request.getDisplayName());
+        user.setAvatar(request.getAvatar());
 
         userRepository.save(user);
 
@@ -87,31 +89,6 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
-/*
-    @Override
-    public AuthenticationResponse login(LoginRequest loginRequest) {
-        // Ukoliko kredencijali nisu ispravni, logovanje nece biti uspesno, desice se
-        // AuthenticationException
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getUsername(), loginRequest.getPassword()));
-
-        // Ukoliko je autentifikacija uspesna, ubaci korisnika u trenutni security
-        // kontekst
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Kreiraj token za tog korisnika
-        UserDetails user = (UserDetails) authentication.getPrincipal();
-        String token = tokenUtils.generateToken(user);
-        int expiresIn = tokenUtils.getExpiredIn();
-
-        // Vrati token kao odgovor na uspesnu autentifikaciju
-        return AuthenticationResponse.builder()
-                .authenticationToken(token)
-                .expiresAt(new Date(System.currentTimeMillis() + expiresIn))
-                .username(loginRequest.getUsername())
-                .build();
-    }
-*/
 
     @Override
     public List<User> findAll() {

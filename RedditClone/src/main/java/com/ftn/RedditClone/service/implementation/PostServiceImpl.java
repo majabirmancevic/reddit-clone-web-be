@@ -3,13 +3,12 @@ package com.ftn.RedditClone.service.implementation;
 import com.ftn.RedditClone.exceptions.CommunityNotFoundException;
 import com.ftn.RedditClone.exceptions.PostNotFoundException;
 import com.ftn.RedditClone.mapper.PostMapper;
-import com.ftn.RedditClone.model.entity.Community;
-import com.ftn.RedditClone.model.entity.Post;
-import com.ftn.RedditClone.model.entity.User;
+import com.ftn.RedditClone.model.entity.*;
 import com.ftn.RedditClone.model.entity.dto.PostRequest;
 import com.ftn.RedditClone.model.entity.dto.PostResponse;
 import com.ftn.RedditClone.repository.CommunityRepository;
 import com.ftn.RedditClone.repository.PostRepository;
+import com.ftn.RedditClone.repository.ReactionRepository;
 import com.ftn.RedditClone.repository.UserRepository;
 import com.ftn.RedditClone.service.PostService;
 import com.ftn.RedditClone.service.UserService;
@@ -19,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -32,6 +32,7 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final PostMapper postMapper;
     private final UserService userService;
+    private final ReactionRepository reactionRepository;
 
     @Override
     public Post save(PostRequest postRequest) {
@@ -43,8 +44,21 @@ public class PostServiceImpl implements PostService {
         User user = userService.findByUsername(username);
 
         Post post = postMapper.map(postRequest, community, user);
+
+        //dodato
+        Reaction reaction = new Reaction();
+        reaction.setType(ReactionType.UPVOTE);
+        reaction.setPost(post);
+        reaction.setUser(user);
+        reaction.setComment(null);
+        reaction.setTimestamp(LocalDate.now());
+
+
         community.addPost(post);
-        return postRepository.save(post);
+        post = postRepository.save(post);
+        reactionRepository.save(reaction);
+        return post;
+
     }
 
     @Override

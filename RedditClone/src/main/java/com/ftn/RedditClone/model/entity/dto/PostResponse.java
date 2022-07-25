@@ -16,6 +16,7 @@ public class PostResponse {
     private Integer reactionCount;
     private Integer commentCount;
     private String duration;
+    private String imagePath;
     private boolean upVote;
     private boolean downVote;
 }

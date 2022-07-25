@@ -42,6 +42,12 @@ public class CommentsController {
                 .body(commentService.getAllCommentsFromUser(userName));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<CommentDTO> getComment(@PathVariable Long id) {
+        return ResponseEntity.status(OK)
+                .body(commentService.getComment(id));
+    }
+
     @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> deleteCommunity(@PathVariable Long id){
 

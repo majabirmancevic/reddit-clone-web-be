@@ -14,6 +14,7 @@ public class CommentDTO {
     private String userName;
     private Long userId;
     private Long parentId;
+    private Integer reactionCount;
     //new
 
     private boolean upVote;
