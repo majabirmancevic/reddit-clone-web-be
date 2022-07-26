@@ -14,5 +14,6 @@ public interface UserService {
     User findById(Long id);
     User update(Long id, RegisterRequest registerRequest);
     List<User> findAll();
+    boolean changePassword(Long id, String oldPassword, String newPassword);
 
 }

@@ -4,6 +4,7 @@ package com.ftn.RedditClone.controller;
 import com.ftn.RedditClone.model.entity.User;
 import com.ftn.RedditClone.model.entity.dto.AuthenticationResponse;
 import com.ftn.RedditClone.model.entity.dto.LoginRequest;
+import com.ftn.RedditClone.model.entity.dto.PasswordDto;
 import com.ftn.RedditClone.model.entity.dto.RegisterRequest;
 import com.ftn.RedditClone.security.TokenUtils;
 import com.ftn.RedditClone.service.UserService;
@@ -131,5 +132,17 @@ public class UserController {
     @GetMapping("/allUsers")
     public List<User> loadAll() {
         return this.userService.findAll();
+    }
+
+    @PostMapping("/changePassword/{id}")
+    public ResponseEntity changePassword(@Validated @PathVariable Long id, @RequestBody PasswordDto passwordDto) {
+
+        boolean result = userService.changePassword(id, passwordDto.getOldPassword(), passwordDto.getNewPassword());
+
+        if(result){
+            return new ResponseEntity(HttpStatus.OK);
+        }else{
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -69,12 +69,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new SpringRedditException("No user found with ID - " + id));
 
         user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setDescription(request.getDescription());
         user.setDisplayName(request.getDisplayName());
         user.setAvatar(request.getAvatar());
-
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
         return user;
@@ -94,5 +93,18 @@ public class UserServiceImpl implements UserService {
     public List<User> findAll() {
         return this.userRepository.findAll();
     }
+
+    @Override
+    public boolean changePassword(Long id, String oldPassword, String newPassword) {
+        User user = userRepository.findById(id).orElseThrow(() -> new SpringRedditException("No user found with ID - " + id));
+
+        if(passwordEncoder.matches(oldPassword,user.getPassword())){
+            user.setPassword(passwordEncoder.encode(newPassword));
+            save(user);
+            return true;
+        }
+        return false;
+    }
+
 
 }
