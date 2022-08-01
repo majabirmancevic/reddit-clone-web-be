@@ -13,4 +13,5 @@ public class PostRequest {
     private String postName;
     private String text;
     private String imagePath;
+    private String flair;
 }

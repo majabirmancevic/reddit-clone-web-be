@@ -2,7 +2,7 @@ package com.ftn.RedditClone.mapper;
 
 import com.ftn.RedditClone.model.entity.*;
 import com.ftn.RedditClone.model.entity.dto.PostRequest;
-import com.ftn.RedditClone.model.entity.dto.PostResponse;
+import com.ftn.RedditClone.model.entity.dto .PostResponse;
 import com.ftn.RedditClone.repository.CommentRepository;
 import com.ftn.RedditClone.repository.ReactionRepository;
 import com.ftn.RedditClone.security.TokenUtils;
@@ -38,13 +38,18 @@ public abstract  class PostMapper {
     @Mapping(target = "user", source = "user")
     @Mapping(target = "reactionCount", constant = "1")
     @Mapping(target = "imagePath", source = "postRequest.imagePath")
-    public abstract Post map(PostRequest postRequest, Community community, User user);
+    @Mapping(target = "flair", source = "flair")
+
+    public abstract Post map(PostRequest postRequest, Community community, User user, Flair flair);
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "postName", source = "title")
     @Mapping(target = "communityName", source = "community.name")
     @Mapping(target = "text", source = "text")
     @Mapping(target = "userName", source = "user.username")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "displayName", source = "user.displayName")
+    @Mapping(target = "flair", source = "flair.name")
     @Mapping(target = "commentCount", expression = "java(commentCount(post))")
     @Mapping(target = "duration", source = "creationDate")
     @Mapping(target = "upVote", expression = "java(isPostUpVoted(post))")

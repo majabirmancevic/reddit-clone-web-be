@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class CommunityController {
 
 
     @PostMapping
-    public ResponseEntity<CommunityDto> createCommunity(@RequestBody CommunityDto communityDto){
+    public ResponseEntity<CommunityDto> createCommunity(@Validated @RequestBody CommunityDto communityDto){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(communityService.save(communityDto));
     }
@@ -32,6 +33,13 @@ public class CommunityController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(communityService.getAll());
+    }
+
+    @GetMapping(value="all")
+    public ResponseEntity<List<CommunityDto>> getAllNotDeletedCommunities(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(communityService.getAllNotDeleted());
     }
 
     @GetMapping("{id}")
@@ -48,38 +56,40 @@ public class CommunityController {
                 .body(communityService.getCommunityByName(name));
     }
 
-//  PROVERI KOJI MAPPING
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping(value = "{id}")
-    public ResponseEntity<Void> deleteCommunity(@PathVariable Long id, @RequestBody String suspendedReason){
 
-        CommunityDto community = communityService.getCommunity(id);
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "{id}")
+    public ResponseEntity<Community> deleteCommunity(@PathVariable Long id, @RequestBody String suspendedReason){
+
+        Community community = communityService.findCommunity(id);
 
         if(community != null){
-            communityService.removeCommunity(id, suspendedReason);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(communityService.removeCommunity(id, suspendedReason));
         } else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping(value = "edit/{id}")
-    public ResponseEntity<CommunityDto> updateCommunity(@RequestBody CommunityDto communityDto, @PathVariable Long id){
+    public ResponseEntity<CommunityDto> updateCommunity(@Validated @RequestBody CommunityDto communityDto, @PathVariable Long id){
 
         Community community = communityService.findCommunity(id);
 
         if (community == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else{
+
+            if(communityDto.getDescription() != community.getDescription() && communityDto.getDescription() != "" ) {
+                community.setDescription(communityDto.getDescription());
+            }
+            if(communityDto.getName() != community.getName() && communityDto.getName() != "") {
+                community.setName(communityDto.getName());
+            }
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(communityService.save(communityMapper.mapSubredditToDto(community)));
         }
 
-        if(communityDto.getDescription() != community.getDescription() && communityDto.getDescription() != "" ) {
-            community.setDescription(communityDto.getDescription());
-        }
-        if(communityDto.getName() != community.getName() && communityDto.getName() != "") {
-            community.setName(communityDto.getName());
-        }
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(communityService.save(communityMapper.mapSubredditToDto(community)));
     }
 
 }

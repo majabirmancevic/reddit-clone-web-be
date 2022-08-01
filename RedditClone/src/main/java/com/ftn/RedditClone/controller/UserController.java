@@ -84,7 +84,7 @@ public class UserController {
     }
 */
     @PutMapping("/users/{id}")
-    public ResponseEntity<RegisterRequest> update(@PathVariable Long id, @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<RegisterRequest> update(@Validated @PathVariable Long id, @RequestBody RegisterRequest registerRequest) {
 
         User user = userService.update(id, registerRequest);
 
@@ -97,7 +97,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<AuthenticationResponse> login(@Validated @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         // Ukoliko kredencijali nisu ispravni, logovanje nece biti uspesno, desice se
         // AuthenticationException

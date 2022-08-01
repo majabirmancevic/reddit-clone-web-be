@@ -2,14 +2,17 @@ package com.ftn.RedditClone.controller;
 
 
 import com.ftn.RedditClone.mapper.PostMapper;
+import com.ftn.RedditClone.model.entity.Flair;
 import com.ftn.RedditClone.model.entity.Post;
 import com.ftn.RedditClone.model.entity.dto.PostRequest;
 import com.ftn.RedditClone.model.entity.dto.PostResponse;
+import com.ftn.RedditClone.repository.FlairRepository;
 import com.ftn.RedditClone.service.PostService;
 import com.ftn.RedditClone.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,10 +29,12 @@ public class PostController {
     PostMapper postMapper;
     @Autowired
     UserService userService;
+    @Autowired
+    FlairRepository flairRepository;
 
 
     @PostMapping
-    public ResponseEntity<Void> createPost(@RequestBody PostRequest postRequest) {
+    public ResponseEntity<Void> createPost(@Validated @RequestBody PostRequest postRequest) {
         postService.save(postRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -69,26 +74,34 @@ public class PostController {
 
 
     @PutMapping(value = "edit/{id}")
-    public ResponseEntity<PostResponse> updatePost(@RequestBody PostRequest postRequest, @PathVariable Long id){
+    public ResponseEntity<PostResponse> updatePost(@Validated @RequestBody PostRequest postRequest, @PathVariable Long id){
 
         Post post = postService.findPost(id);
 
         if (post == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        else{
 
-        if(postRequest.getPostName() != post.getTitle() && postRequest.getPostName() != ""){
-            post.setText(postRequest.getText());
+            if(postRequest.getPostName() != post.getTitle() && postRequest.getPostName() != ""){
+                post.setText(postRequest.getText());
+            }
+
+            if(postRequest.getText() != post.getText() && postRequest.getText() != ""){
+                post.setTitle(postRequest.getPostName());
+            }
+
+            Flair flair = flairRepository.findByName(postRequest.getFlair());
+            post.setFlair(flair);
+            post.setImagePath(postRequest.getImagePath());
+
+            post = postService.save(post);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(postMapper.mapToDto(post));
         }
 
-        if(postRequest.getText() != post.getText() && postRequest.getText() != ""){
-            post.setTitle(postRequest.getPostName());
-        }
 
-        post = postService.save(post);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(postMapper.mapToDto(post));
 
     }
 

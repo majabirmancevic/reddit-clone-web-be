@@ -79,25 +79,38 @@ public class CommunityServiceImpl implements CommunityService {
     public CommunityDto getCommunity(Long id) {
         Community community = communityRepository.findById(id)
                 .orElseThrow(() -> new SpringRedditException("No community found with ID - " + id));
-        return communityMapper.mapSubredditToDto(community);
+        CommunityDto dto = communityMapper.mapSubredditToDto(community);
+        dto.setUserId(community.getUser().getId());
+
+        return dto;
     }
 
     @Override
     public CommunityDto getCommunityByName(String name) {
-        Community community = communityRepository.findByName(name).orElseThrow(() -> new SpringRedditException("No community found with name - " + name));
+        Community community = communityRepository.findByName(name);
         return communityMapper.mapSubredditToDto(community);
     }
 
     @Override
-    public void removeCommunity(Long id, String suspendedReason) {
+    public Community removeCommunity(Long id, String suspendedReason) {
         Community community = communityRepository.findById(id).orElseThrow(() -> new SpringRedditException("No community found with ID - " + id));
         community.setSuspended(true);
         community.setSuspendedReason(suspendedReason);
+        community.setUser(null);
+        return communityRepository.save(community);
     }
 
     @Override
     public Community findCommunity(Long id) {
         return communityRepository.findById(id).orElseGet(null);
+    }
+
+    @Override
+    public List<CommunityDto> getAllNotDeleted() {
+        return communityRepository.findAllBySuspended()
+                .stream()
+                .map(communityMapper::mapSubredditToDto)
+                .collect(toList());
     }
 
 }

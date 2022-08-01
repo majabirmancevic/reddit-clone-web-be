@@ -1,5 +1,6 @@
 package com.ftn.RedditClone.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,11 +8,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.util.List;
 
 import static javax.persistence.FetchType.EAGER;
-import static javax.persistence.FetchType.LAZY;
 
 @Data
 @Entity
@@ -25,8 +26,10 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
     private String title;
 
+    @NotBlank(message = "Text is required")
     @Lob
     private String text;
 
@@ -42,25 +45,18 @@ public class Post {
     private User user;
 
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "flairId", referencedColumnName = "id")
     private Flair flair;
 
     @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "communityId")
+    @JsonBackReference
     private Community community;
 
     @OneToMany(fetch = EAGER, mappedBy = "post", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Comment> comments;
 
-//    @OneToMany(fetch = LAZY, cascade = CascadeType.ALL)
-//    @JsonManagedReference
-//    private List<Reaction> reactions;
-//
-//    public void addReaction(Reaction reaction) {
-//        reaction.setType(ReactionType.UPVOTE);
-//        reactions.add(reaction);
-//        reaction.setPost(this);
-//    }
+
 }

@@ -1,18 +1,13 @@
 package com.ftn.RedditClone.model.entity.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class CommunityDto {
-    private Long id;
-    private String name;
+public class RuleDto {
     private String description;
-    private Integer numberOfPosts;
-    private Long userId;
+    private Long communityId;
 }

@@ -12,7 +12,7 @@ public interface CommunityService {
     List<CommunityDto> getAll();
     CommunityDto getCommunity(Long id);
     CommunityDto getCommunityByName(String name);
-    void removeCommunity(Long id, String suspendedReason);
+    Community removeCommunity(Long id, String suspendedReason);
     Community findCommunity(Long id);
-
+    List<CommunityDto> getAllNotDeleted();
 }

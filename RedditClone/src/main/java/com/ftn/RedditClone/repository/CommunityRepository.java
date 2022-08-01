@@ -5,13 +5,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface CommunityRepository extends JpaRepository<Community, Long> {
 
-    Optional<Community> findByName(String subredditName);
+    @Query(value = "SELECT * FROM reddit.community c WHERE c.is_suspended = 0 AND c.name LIKE %?1%", nativeQuery = true)
+    public Community findByName(String name);
 
-    @Query("select c from Community c join fetch c.posts where c.id =?1")
-    public Community findOneWithPosts(Long communityId);
+    @Query(value = "select c from community c join fetch c.posts where c.id = ?1", nativeQuery = true)
+    public Community findOneWithPosts(Long id);
+
+    @Query(value = "SELECT * FROM reddit.community c WHERE c.is_suspended = 0 ", nativeQuery = true)
+    public List<Community> findAllBySuspended();
 }

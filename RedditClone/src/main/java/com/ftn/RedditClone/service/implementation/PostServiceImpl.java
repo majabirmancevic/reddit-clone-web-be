@@ -6,10 +6,7 @@ import com.ftn.RedditClone.mapper.PostMapper;
 import com.ftn.RedditClone.model.entity.*;
 import com.ftn.RedditClone.model.entity.dto.PostRequest;
 import com.ftn.RedditClone.model.entity.dto.PostResponse;
-import com.ftn.RedditClone.repository.CommunityRepository;
-import com.ftn.RedditClone.repository.PostRepository;
-import com.ftn.RedditClone.repository.ReactionRepository;
-import com.ftn.RedditClone.repository.UserRepository;
+import com.ftn.RedditClone.repository.*;
 import com.ftn.RedditClone.service.PostService;
 import com.ftn.RedditClone.service.UserService;
 import lombok.AllArgsConstructor;
@@ -33,17 +30,23 @@ public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
     private final UserService userService;
     private final ReactionRepository reactionRepository;
+    private final FlairRepository flairRepository;
 
     @Override
     public Post save(PostRequest postRequest) {
-        Community community = communityRepository.findByName(postRequest.getCommunityName())
-                .orElseThrow(() -> new CommunityNotFoundException(postRequest.getCommunityName()));
+        Community community = communityRepository.findByName(postRequest.getCommunityName());
+
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = ((UserDetails) principal).getUsername();
         User user = userService.findByUsername(username);
 
-        Post post = postMapper.map(postRequest, community, user);
+        Flair flair = new Flair();
+        if (postRequest.getFlair() != null) {
+            flair = flairRepository.findByName(postRequest.getFlair());
+        }
+        Post post = postMapper.map(postRequest, community, user, flair);
+
 
         //dodato
         Reaction reaction = new Reaction();

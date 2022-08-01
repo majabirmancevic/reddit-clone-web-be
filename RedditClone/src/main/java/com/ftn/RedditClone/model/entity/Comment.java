@@ -1,5 +1,6 @@
 package com.ftn.RedditClone.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,7 @@ public class Comment {
     private Integer reactionCount = 1;
 
     @ManyToOne(fetch = EAGER)
+    @JsonBackReference
     @JoinColumn(name = "postId", referencedColumnName = "id")
     private Post post;
 
