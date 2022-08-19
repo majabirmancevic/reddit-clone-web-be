@@ -17,11 +17,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 
@@ -43,30 +43,11 @@ public class UserController {
     ServletContext context;
 
     @PostMapping("/signup")
-    public ResponseEntity<RegisterRequest> signup(@RequestBody @Validated RegisterRequest registerRequest)
+    public ResponseEntity<RegisterRequest> signup(@RequestBody @Valid RegisterRequest registerRequest)
     {
 
         User createdUser = userService.createUser(registerRequest);
-/*
-        boolean isExit = new File(context.getRealPath("/Photos")).exists();
-        if (!isExit)
-        {
-            new File (context.getRealPath("/Photos/")).mkdir();
-            //           System.out.println("mk dir Photos.");
-        }
 
-        String filename = file.getOriginalFilename();
-        String newFileName = FilenameUtils.getBaseName(filename)+"."+FilenameUtils.getExtension(filename);
-        File serverFile = new File (context.getRealPath("/Photos/"+ File.separator+newFileName));
-        try
-        {
-            FileUtils.writeByteArrayToFile(serverFile,file.getBytes());
-
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        createdUser.setAvatar(newFileName);
-*/
         if(createdUser == null){
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
@@ -75,16 +56,8 @@ public class UserController {
         return new ResponseEntity<>(userDTO, OK);
     }
 
-/*
-    @GetMapping(path="/image/{id}")
-    public byte[] getPhoto(@PathVariable("id") Long id) throws IOException {
-        User User   =userService.findById(id)
-                .orElseThrow(() -> new SpringRedditException("No photo found with ID - " + id));
-        return Files.readAllBytes(Paths.get(context.getRealPath("/Photos/")+User.getAvatar()));
-    }
-*/
     @PutMapping("/users/{id}")
-    public ResponseEntity<RegisterRequest> update(@Validated @PathVariable Long id, @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<RegisterRequest> update(@Valid @PathVariable Long id, @RequestBody RegisterRequest registerRequest) {
 
         User user = userService.update(id, registerRequest);
 
@@ -97,7 +70,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@Validated @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         // Ukoliko kredencijali nisu ispravni, logovanje nece biti uspesno, desice se
         // AuthenticationException
@@ -135,7 +108,7 @@ public class UserController {
     }
 
     @PostMapping("/changePassword/{id}")
-    public ResponseEntity changePassword(@Validated @PathVariable Long id, @RequestBody PasswordDto passwordDto) {
+    public ResponseEntity changePassword(@Valid @PathVariable Long id, @RequestBody PasswordDto passwordDto) {
 
         boolean result = userService.changePassword(id, passwordDto.getOldPassword(), passwordDto.getNewPassword());
 

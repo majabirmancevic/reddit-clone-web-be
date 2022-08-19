@@ -9,7 +9,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
-import java.util.List;
 
 import static javax.persistence.FetchType.EAGER;
 
@@ -45,18 +44,19 @@ public class Comment {
     private User user;
 
 
+//    @OneToMany(fetch = EAGER, cascade = {CascadeType.PERSIST,
+//            CascadeType.MERGE,
+//            CascadeType.DETACH, CascadeType.REFRESH})
+//    private List<Comment> comments;
 
-    @OneToMany(fetch = EAGER)
-    private List<Comment> comments;
-
-
-    public void addComment(Comment comment) {
-        comments.add(comment);
-        comment.setComments(comments);
-    }
-
-    public void removeComment(Comment comment) {
-        comments.remove(comment);
-    //    moderator.setCommunity(null);
-    }
+//
+//    public void addComment(Comment comment) {
+//        comments.add(comment);
+//        comment.setComments(comments);
+//    }
+//
+//    public void removeComment(Comment comment) {
+//        comments.remove(comment);
+//    //    moderator.setCommunity(null);
+//    }
 }

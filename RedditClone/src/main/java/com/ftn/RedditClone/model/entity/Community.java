@@ -19,6 +19,7 @@ import static javax.persistence.FetchType.LAZY;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Community {
 
     @Id
@@ -38,8 +39,8 @@ public class Community {
 
     private String suspendedReason;
 
-    @OneToMany(mappedBy = "community",fetch = EAGER,cascade = CascadeType.ALL)
     @JsonManagedReference
+    @OneToMany(mappedBy = "community",fetch = EAGER,cascade = CascadeType.ALL)
     private List<Post> posts;
 
 

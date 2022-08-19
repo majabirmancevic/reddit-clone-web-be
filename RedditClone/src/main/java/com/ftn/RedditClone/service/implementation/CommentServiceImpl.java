@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -80,9 +81,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void removeComment(Long id) {
         commentRepository.deleteById(id);
-        //Comment comment = commentRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id.toString()));
+        //Comment comment = commentRepository.findById(id).orElseThrow(() -> new SpringRedditException(id.toString()));
         //commentRepository.delete(comment);
         //comment.removeComment(comment);
         //comment.setDeleted(true);
@@ -100,5 +102,13 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comment findComment(Long id) {
         return commentRepository.findById(id).orElseGet(null);
+    }
+
+    @Override
+    public List<CommentDTO> getAllFromParentId(Long id) {
+        return commentRepository.findAllByParentId(id)
+                .stream()
+                .map(commentMapper::mapToDto)
+                .collect(toList());
     }
 }

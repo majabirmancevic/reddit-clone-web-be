@@ -49,9 +49,9 @@ public class Post {
     @JoinColumn(name = "flairId", referencedColumnName = "id")
     private Flair flair;
 
+    @JsonBackReference
     @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "communityId")
-    @JsonBackReference
     private Community community;
 
     @OneToMany(fetch = EAGER, mappedBy = "post", cascade = CascadeType.ALL)

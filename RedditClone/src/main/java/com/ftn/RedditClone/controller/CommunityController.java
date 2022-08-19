@@ -7,10 +7,9 @@ import com.ftn.RedditClone.service.CommunityService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -23,7 +22,7 @@ public class CommunityController {
 
 
     @PostMapping
-    public ResponseEntity<CommunityDto> createCommunity(@Validated @RequestBody CommunityDto communityDto){
+    public ResponseEntity<CommunityDto> createCommunity(@Valid @RequestBody CommunityDto communityDto){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(communityService.save(communityDto));
     }
@@ -57,7 +56,6 @@ public class CommunityController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "{id}")
     public ResponseEntity<Community> deleteCommunity(@PathVariable Long id, @RequestBody String suspendedReason){
 
@@ -72,7 +70,7 @@ public class CommunityController {
     }
 
     @PutMapping(value = "edit/{id}")
-    public ResponseEntity<CommunityDto> updateCommunity(@Validated @RequestBody CommunityDto communityDto, @PathVariable Long id){
+    public ResponseEntity<CommunityDto> updateCommunity(@Valid @RequestBody CommunityDto communityDto, @PathVariable Long id){
 
         Community community = communityService.findCommunity(id);
 
@@ -91,5 +89,7 @@ public class CommunityController {
         }
 
     }
+
+
 
 }

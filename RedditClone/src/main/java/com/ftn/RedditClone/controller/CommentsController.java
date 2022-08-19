@@ -3,6 +3,7 @@ package com.ftn.RedditClone.controller;
 import com.ftn.RedditClone.mapper.CommentMapper;
 import com.ftn.RedditClone.model.entity.Comment;
 import com.ftn.RedditClone.model.entity.dto.CommentDTO;
+import com.ftn.RedditClone.repository.CommentRepository;
 import com.ftn.RedditClone.service.CommentService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class CommentsController {
     CommentService commentService;
     @Autowired
     CommentMapper commentMapper;
+    @Autowired
+    CommentRepository commentRepository;
 
     @PostMapping
     public ResponseEntity<CommentDTO> createComment(@RequestBody CommentDTO commentDto) {
@@ -48,12 +51,18 @@ public class CommentsController {
                 .body(commentService.getComment(id));
     }
 
-    @DeleteMapping("delete/{id}")
-    public ResponseEntity<Void> deleteCommunity(@PathVariable Long id){
+    @GetMapping("allByParent/{id}")
+    public ResponseEntity<List<CommentDTO>> getAllFromParentComment(@PathVariable Long id){
+        return ResponseEntity.status(OK)
+                .body(commentService.getAllFromParentId(id));
+    }
 
-        CommentDTO commentDTO = commentService.getComment(id);
+    @DeleteMapping(value = "delete/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id){
 
-        if(commentDTO != null){
+        Comment comment = commentService.findComment(id);
+
+        if(comment != null){
             commentService.removeComment(id);
             return new ResponseEntity<>(HttpStatus.OK);
         } else{
@@ -74,8 +83,9 @@ public class CommentsController {
             comment.setText(commentDTO.getText());
         }
 
+        commentRepository.save(comment);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(commentService.save(commentMapper.mapToDto(comment)));
+                .body(commentMapper.mapToDto(comment));
     }
 }

@@ -41,12 +41,16 @@ public class PostServiceImpl implements PostService {
         String username = ((UserDetails) principal).getUsername();
         User user = userService.findByUsername(username);
 
-        Flair flair = new Flair();
-        if (postRequest.getFlair() != null) {
-            flair = flairRepository.findByName(postRequest.getFlair());
-        }
-        Post post = postMapper.map(postRequest, community, user, flair);
+        Post post = new Post();
 
+        if (postRequest.getFlair() != null) {
+            Flair flair = new Flair();
+            flair = flairRepository.findByName(postRequest.getFlair());
+            post = postMapper.map(postRequest, community, user, flair);
+        }
+        else{
+            post = postMapper.map(postRequest, community, user, null);
+        }
 
         //dodato
         Reaction reaction = new Reaction();
