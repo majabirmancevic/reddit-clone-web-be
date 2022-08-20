@@ -1,6 +1,7 @@
 package com.ftn.RedditClone.controller;
 
 
+import com.ftn.RedditClone.exceptions.PostNotFoundException;
 import com.ftn.RedditClone.mapper.PostMapper;
 import com.ftn.RedditClone.model.entity.Flair;
 import com.ftn.RedditClone.model.entity.Post;
@@ -13,6 +14,7 @@ import com.ftn.RedditClone.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -71,13 +73,15 @@ public class PostController {
                         .collect(toList()));
     }
 
+    @Transactional
     @DeleteMapping(value = "{id}")
     public ResponseEntity<Void> removePost(@PathVariable Long id){
 
-        PostResponse post = postService.getPost(id);
+        //PostResponse post = postService.getPost(id);
+        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id.toString()));
 
         if(post != null){
-            postService.removePost(id);
+            postRepository.delete(post);
             return new ResponseEntity<>(HttpStatus.OK);
         } else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -94,7 +98,7 @@ public class PostController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         else{
-            if(postRequest.getPostName() != "" || postRequest.getText() != "") {
+            if(postRequest.getPostName() != "" && postRequest.getText() != "") {
                 post.setText(postRequest.getText());
                 post.setTitle(postRequest.getPostName());
             }
@@ -108,7 +112,7 @@ public class PostController {
                 post.setImagePath(postRequest.getImagePath());
             }
 
-            post = postService.save(post);
+            post = postRepository.save(post);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(postMapper.mapToDto(post));

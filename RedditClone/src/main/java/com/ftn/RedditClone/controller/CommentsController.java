@@ -1,5 +1,6 @@
 package com.ftn.RedditClone.controller;
 
+import com.ftn.RedditClone.exceptions.SpringRedditException;
 import com.ftn.RedditClone.mapper.CommentMapper;
 import com.ftn.RedditClone.model.entity.Comment;
 import com.ftn.RedditClone.model.entity.dto.CommentDTO;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,13 +59,14 @@ public class CommentsController {
                 .body(commentService.getAllFromParentId(id));
     }
 
+
     @DeleteMapping(value = "delete/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id){
 
-        Comment comment = commentService.findComment(id);
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new SpringRedditException(id.toString()));
 
         if(comment != null){
-            commentService.removeComment(id);
+            commentRepository.deleteCurrent(id);
             return new ResponseEntity<>(HttpStatus.OK);
         } else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

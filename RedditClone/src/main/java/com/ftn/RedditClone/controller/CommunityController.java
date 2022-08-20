@@ -3,8 +3,10 @@ package com.ftn.RedditClone.controller;
 import com.ftn.RedditClone.mapper.CommunityMapper;
 import com.ftn.RedditClone.model.entity.Community;
 import com.ftn.RedditClone.model.entity.dto.CommunityDto;
+import com.ftn.RedditClone.repository.CommunityRepository;
 import com.ftn.RedditClone.service.CommunityService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +19,12 @@ import java.util.List;
 @AllArgsConstructor
 public class CommunityController {
 
-    private final CommunityService communityService;
-    private final CommunityMapper communityMapper;
+    @Autowired
+    CommunityService communityService;
+    @Autowired
+    CommunityMapper communityMapper;
+    @Autowired
+    CommunityRepository communityRepository;
 
 
     @PostMapping
@@ -78,14 +84,15 @@ public class CommunityController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else{
 
-            if(communityDto.getDescription() != community.getDescription() && communityDto.getDescription() != "" ) {
+            if(communityDto.getDescription() != "" && communityDto.getName() != "" ) {
                 community.setDescription(communityDto.getDescription());
-            }
-            if(communityDto.getName() != community.getName() && communityDto.getName() != "") {
                 community.setName(communityDto.getName());
             }
+
+            community = communityRepository.save(community);
+
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(communityService.save(communityMapper.mapSubredditToDto(community)));
+                    .body(communityMapper.mapSubredditToDto(community));
         }
 
     }

@@ -26,15 +26,15 @@ public class Reaction {
     private LocalDate timestamp;
 
 
-    @ManyToOne(fetch = EAGER)
+    @ManyToOne(fetch = EAGER,cascade = CascadeType.REMOVE)
     @JoinColumn(name = "postId", referencedColumnName = "id")
     private Post post;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "commentId", referencedColumnName = "id")
     private Comment comment;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = LAZY,  cascade = CascadeType.REMOVE)
     @JoinColumn(name = "userId", referencedColumnName = "id")
     private User user;
 

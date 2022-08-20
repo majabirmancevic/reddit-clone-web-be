@@ -13,6 +13,7 @@ import java.util.List;
 public interface  CommunityMapper {
 
     @Mapping(target = "numberOfPosts", expression = "java(mapPosts(community.getPosts()))")
+    @Mapping(target = "userId", source = "user.id")
     CommunityDto mapSubredditToDto(Community community);
 
     default Integer mapPosts(List<Post> numberOfPosts) {
@@ -21,5 +22,7 @@ public interface  CommunityMapper {
 
     @InheritInverseConfiguration
     Community mapDtoToSubreddit(CommunityDto subredditDto);
+
+
 
 }
