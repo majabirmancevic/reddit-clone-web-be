@@ -75,6 +75,7 @@ public class CommunityController {
         }
     }
 
+
     @PutMapping(value = "edit/{id}")
     public ResponseEntity<CommunityDto> updateCommunity(@Valid @RequestBody CommunityDto communityDto, @PathVariable Long id){
 
@@ -83,14 +84,7 @@ public class CommunityController {
         if (community == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else{
-
-            if(communityDto.getDescription() != "" && communityDto.getName() != "" ) {
-                community.setDescription(communityDto.getDescription());
-                community.setName(communityDto.getName());
-            }
-
-            community = communityRepository.save(community);
-
+            communityService.editCommunity(communityDto,id);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(communityMapper.mapSubredditToDto(community));
         }

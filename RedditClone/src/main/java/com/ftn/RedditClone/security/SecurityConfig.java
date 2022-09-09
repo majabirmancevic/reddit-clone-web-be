@@ -74,6 +74,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/community/byName/{name}")
                 .permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts/{id}")
+                .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/posts/")
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/posts/notSuspended")

@@ -15,4 +15,5 @@ public interface CommunityService {
     Community removeCommunity(Long id, String suspendedReason);
     Community findCommunity(Long id);
     List<CommunityDto> getAllNotDeleted();
+    Community editCommunity(CommunityDto dto, Long id);
 }

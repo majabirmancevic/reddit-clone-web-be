@@ -20,7 +20,7 @@ public class TokenUtils {
     @Value("biloKojiString")
     private String secret;
 
-    @Value("3600000")
+    @Value("18000000")
     private Long expiration;
 
     public String getUsernameFromToken(String token) {

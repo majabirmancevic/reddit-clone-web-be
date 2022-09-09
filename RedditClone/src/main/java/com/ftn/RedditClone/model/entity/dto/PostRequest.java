@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 public class PostRequest {
     private Long postId;
 
- //   @NotBlank(message = "Community name is required")
+    @NotBlank(message = "Community name is required")
     private String communityName;
 
     @NotBlank(message = "Post name is required")

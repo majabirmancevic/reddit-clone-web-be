@@ -113,4 +113,21 @@ public class CommunityServiceImpl implements CommunityService {
                 .collect(toList());
     }
 
+    @Override
+    public Community editCommunity(CommunityDto dto, Long id) {
+
+        Community community = communityRepository.findById(id).orElseThrow(() -> new SpringRedditException("No community found with ID - " + id));
+
+        if(community != null){
+            if (dto.getDescription() != "") {
+                community.setDescription(dto.getDescription());
+            }
+            if(dto.getName() != ""){
+                community.setName(dto.getName());
+            }
+            communityRepository.save(community);
+        }
+        return null;
+    }
+
 }
