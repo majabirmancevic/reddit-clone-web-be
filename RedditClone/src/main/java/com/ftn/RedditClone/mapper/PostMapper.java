@@ -19,7 +19,7 @@ import static com.ftn.RedditClone.model.entity.ReactionType.DOWNVOTE;
 import static com.ftn.RedditClone.model.entity.ReactionType.UPVOTE;
 
 @Mapper(componentModel = "spring")
-public abstract  class PostMapper {
+public abstract class PostMapper {
 
     @Autowired
     CommentRepository commentRepository;

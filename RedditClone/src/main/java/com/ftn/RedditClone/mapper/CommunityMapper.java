@@ -14,6 +14,7 @@ public interface  CommunityMapper {
 
     @Mapping(target = "numberOfPosts", expression = "java(mapPosts(community.getPosts()))")
     @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "files", ignore = true)
     CommunityDto mapSubredditToDto(Community community);
 
     default Integer mapPosts(List<Post> numberOfPosts) {

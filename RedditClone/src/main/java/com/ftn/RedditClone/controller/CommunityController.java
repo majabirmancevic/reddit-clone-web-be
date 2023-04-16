@@ -3,6 +3,8 @@ package com.ftn.RedditClone.controller;
 import com.ftn.RedditClone.mapper.CommunityMapper;
 import com.ftn.RedditClone.model.entity.Community;
 import com.ftn.RedditClone.model.entity.dto.CommunityDto;
+import com.ftn.RedditClone.model.entity.dto.CommunityResponseElastic;
+import com.ftn.RedditClone.model.entity.dto.DescriptionDto;
 import com.ftn.RedditClone.repository.CommunityRepository;
 import com.ftn.RedditClone.service.CommunityService;
 import lombok.AllArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -27,8 +30,8 @@ public class CommunityController {
     CommunityRepository communityRepository;
 
 
-    @PostMapping
-    public ResponseEntity<CommunityDto> createCommunity(@Valid @RequestBody CommunityDto communityDto){
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<CommunityDto> createCommunity(@Valid @ModelAttribute CommunityDto communityDto) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(communityService.save(communityDto));
     }
@@ -91,6 +94,16 @@ public class CommunityController {
 
     }
 
-
-
+    @GetMapping("name/{name}")
+    public List<CommunityResponseElastic> findCommunityByName(@PathVariable String name){
+        return communityService.findAllByName(name);
+    }
+    @GetMapping("description")
+    public List<CommunityResponseElastic> findCommunityByDescription(@RequestBody DescriptionDto dto){
+        return communityService.findAllByDescription(dto.getText());
+    }
+    @GetMapping("description/file")
+    public List<CommunityResponseElastic> findCommunityByDescriptionFromFile(@RequestBody DescriptionDto dto){
+        return communityService.findAllByDescriptionFromFile(dto.getText());
+    }
 }
