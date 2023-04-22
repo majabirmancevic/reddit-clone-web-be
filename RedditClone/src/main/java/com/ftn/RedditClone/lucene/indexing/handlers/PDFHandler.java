@@ -37,7 +37,7 @@ public class PDFHandler extends DocumentHandler {
 			
 			retVal.setFilename(file.getCanonicalPath());
 			
-			String modificationDate= DateTools.dateToString(new Date(file.lastModified()), DateTools.Resolution.DAY);
+			//String modificationDate= DateTools.dateToString(new Date(file.lastModified()), DateTools.Resolution.DAY);
 
 			pdf.close();
 		} catch (IOException e) {

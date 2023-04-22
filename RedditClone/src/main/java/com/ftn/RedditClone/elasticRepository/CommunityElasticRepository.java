@@ -7,8 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CommunityElasticRepository extends ElasticsearchRepository<CommunityElastic, Long>{
+public interface CommunityElasticRepository extends ElasticsearchRepository<CommunityElastic, String>{
     List<CommunityElastic> findAllByName(String name);
+    CommunityElastic findByName(String name);
     List<CommunityElastic> findAllByDescription(String description);
     List<CommunityElastic> findAllByDescriptionFromFile(String descriptionFromFile);
 }

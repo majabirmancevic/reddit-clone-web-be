@@ -1,12 +1,13 @@
 package com.ftn.RedditClone.controller;
 
 
-import com.ftn.RedditClone.exceptions.PostNotFoundException;
 import com.ftn.RedditClone.mapper.PostMapper;
 import com.ftn.RedditClone.model.entity.Flair;
 import com.ftn.RedditClone.model.entity.Post;
+import com.ftn.RedditClone.model.entity.dto.DescriptionDto;
 import com.ftn.RedditClone.model.entity.dto.PostRequest;
 import com.ftn.RedditClone.model.entity.dto.PostResponse;
+import com.ftn.RedditClone.model.entity.dto.PostResponseElastic;
 import com.ftn.RedditClone.repository.FlairRepository;
 import com.ftn.RedditClone.repository.PostRepository;
 import com.ftn.RedditClone.service.PostService;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -37,8 +39,11 @@ public class PostController {
     @Autowired
     PostRepository postRepository;
 
+
+
+
     @PostMapping
-    public ResponseEntity<Void> createPost(@Valid @RequestBody PostRequest postRequest) {
+    public ResponseEntity<Void> createPost(@Valid @ModelAttribute PostRequest postRequest) throws IOException {
         postService.save(postRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -76,14 +81,19 @@ public class PostController {
     public ResponseEntity<Void> removePost(@PathVariable Long id){
 
         //PostResponse post = postService.getPost(id);
-        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id.toString()));
-
-        if(post != null){
-            postRepository.deleteCurrent(id);
+       // Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id.toString()));
+        if (postService.removePost(id)){
             return new ResponseEntity<>(HttpStatus.OK);
-        } else{
+        }else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        //        if(post != null){
+//            postService.removePost(id);
+//            return new ResponseEntity<>(HttpStatus.OK);
+//        } else{
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
     }
 
 
@@ -117,7 +127,27 @@ public class PostController {
         }
     }
 
+    @GetMapping("name/{name}")
+    public List<PostResponseElastic> findPostByName(@PathVariable String name){
+        return postService.findAllByName(name);
+    }
+    @GetMapping("description")
+    public List<PostResponseElastic> findPostByDescription(@RequestBody DescriptionDto dto){
+        return postService.findAllByDescription(dto.getText());
+    }
+    @GetMapping("description/file")
+    public List<PostResponseElastic> findPostByDescriptionFromFile(@RequestBody DescriptionDto dto){
+        return postService.findAllByDescriptionFromFile(dto.getText());
+    }
 
+    @GetMapping("reindex")
+    public void reindex(){
+        postService.reindex();
+    }
 
+    @GetMapping("community/{name}")
+    public List<PostResponseElastic> getAllByCommunityName(@PathVariable String name){
+       return postService.findByCommunityName(name);
+    }
 
 }

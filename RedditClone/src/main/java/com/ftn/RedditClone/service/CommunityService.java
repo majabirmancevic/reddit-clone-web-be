@@ -3,7 +3,6 @@ package com.ftn.RedditClone.service;
 import com.ftn.RedditClone.model.entity.Community;
 import com.ftn.RedditClone.model.entity.dto.CommunityDto;
 import com.ftn.RedditClone.model.entity.dto.CommunityResponseElastic;
-import com.ftn.RedditClone.model.entity.elastic.CommunityElastic;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,4 +22,10 @@ public interface CommunityService {
     List<CommunityResponseElastic>  findAllByName(String name);
     List<CommunityResponseElastic> findAllByDescription(String description);
     List<CommunityResponseElastic> findAllByDescriptionFromFile(String descriptionFromFile);
+
+    List<CommunityResponseElastic> findByNumOfPosts(int from, int to);
+
+    void deleteAll();
+
+    void reindex();
 }

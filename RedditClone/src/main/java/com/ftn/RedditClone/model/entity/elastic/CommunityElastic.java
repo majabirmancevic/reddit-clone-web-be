@@ -1,6 +1,5 @@
 package com.ftn.RedditClone.model.entity.elastic;
 
-import com.ftn.RedditClone.model.entity.Post;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -31,11 +30,13 @@ public class CommunityElastic {
     @Field(type = FieldType.Text)
     private String descriptionFromFile;
 
-    @Field(type = FieldType.Nested)
+    @Field(type = FieldType.Nested, includeInParent = true)
     private List<PostElastic> posts;
 
     @Field(type = FieldType.Keyword)
     private String keywords;
+    @Field(type = FieldType.Integer)
+    private int numOfPosts ;
 
     private String filename;
 }

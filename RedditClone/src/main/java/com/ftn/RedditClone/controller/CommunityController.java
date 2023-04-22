@@ -5,10 +5,12 @@ import com.ftn.RedditClone.model.entity.Community;
 import com.ftn.RedditClone.model.entity.dto.CommunityDto;
 import com.ftn.RedditClone.model.entity.dto.CommunityResponseElastic;
 import com.ftn.RedditClone.model.entity.dto.DescriptionDto;
+import com.ftn.RedditClone.model.entity.elastic.CommunityElastic;
 import com.ftn.RedditClone.repository.CommunityRepository;
 import com.ftn.RedditClone.service.CommunityService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,10 @@ public class CommunityController {
     CommunityMapper communityMapper;
     @Autowired
     CommunityRepository communityRepository;
+
+    @Autowired
+    ElasticsearchOperations operations;
+
 
 
     @PostMapping(consumes = {"multipart/form-data"})
@@ -105,5 +111,21 @@ public class CommunityController {
     @GetMapping("description/file")
     public List<CommunityResponseElastic> findCommunityByDescriptionFromFile(@RequestBody DescriptionDto dto){
         return communityService.findAllByDescriptionFromFile(dto.getText());
+    }
+
+    @GetMapping("numOfPosts")
+    public List<CommunityResponseElastic> getByNumOfPostsRange(@RequestParam(name = "from") int from, @RequestParam(name = "to") int to) {
+        return communityService.findByNumOfPosts(from, to);
+    }
+
+    @DeleteMapping("delete")
+    public void deleteAllCommunities(){
+        communityService.deleteAll();
+        operations.refresh(CommunityElastic.class);
+    }
+
+    @GetMapping("reindex")
+    public void reindex(){
+        communityService.reindex();
     }
 }

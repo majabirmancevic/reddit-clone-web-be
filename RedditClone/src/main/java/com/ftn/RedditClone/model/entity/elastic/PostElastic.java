@@ -17,7 +17,7 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 public class PostElastic {
 
     @Id
-    private Long id;
+    private String id;
     @Field(type = FieldType.Keyword)
     private String name;
     @Field(type = FieldType.Keyword)
@@ -26,10 +26,10 @@ public class PostElastic {
     private String description;
     @Field(type = FieldType.Text)
     private String descriptionFromFile;
-    @Field(type = FieldType.Nested)
-    private CommunityElastic community;
+    @Field(type = FieldType.Text)
+    private String communityName;
     @Field(type = FieldType.Integer)
-    private Integer reactionCount = 1;
+    private Integer reactionCount ;
 
     @Field(type = FieldType.Keyword)
     private String keywords;

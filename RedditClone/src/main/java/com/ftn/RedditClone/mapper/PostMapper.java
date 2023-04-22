@@ -39,7 +39,6 @@ public abstract class PostMapper {
     @Mapping(target = "reactionCount", constant = "1")
     @Mapping(target = "imagePath", source = "postRequest.imagePath")
     @Mapping(target = "flair", source = "flair")
-
     public abstract Post map(PostRequest postRequest, Community community, User user, Flair flair);
 
     @Mapping(target = "id", source = "id")

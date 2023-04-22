@@ -3,6 +3,7 @@ package com.ftn.RedditClone.model.entity.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 
@@ -23,4 +24,6 @@ public class PostRequest {
 
     private String imagePath;
     private String flair;
+
+    private MultipartFile[] files;
 }

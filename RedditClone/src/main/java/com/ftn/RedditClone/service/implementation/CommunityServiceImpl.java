@@ -1,5 +1,7 @@
 package com.ftn.RedditClone.service.implementation;
 
+import com.ftn.RedditClone.elasticRepository.CommunityElasticRepository;
+import com.ftn.RedditClone.elasticRepository.PostElasticRepository;
 import com.ftn.RedditClone.exceptions.SpringRedditException;
 import com.ftn.RedditClone.lucene.indexing.handlers.*;
 import com.ftn.RedditClone.mapper.CommunityMapper;
@@ -9,14 +11,22 @@ import com.ftn.RedditClone.model.entity.Moderator;
 import com.ftn.RedditClone.model.entity.User;
 import com.ftn.RedditClone.model.entity.dto.CommunityDto;
 import com.ftn.RedditClone.model.entity.dto.CommunityResponseElastic;
+import com.ftn.RedditClone.model.entity.dto.SimpleQueryEs;
 import com.ftn.RedditClone.model.entity.elastic.CommunityElastic;
+import com.ftn.RedditClone.model.entity.elastic.PostElastic;
 import com.ftn.RedditClone.repository.CommunityRepository;
-import com.ftn.RedditClone.elasticRepository.CommunityElasticRepository;
 import com.ftn.RedditClone.service.CommunityService;
 import com.ftn.RedditClone.service.ModeratorService;
+import com.ftn.RedditClone.service.SearchQueryGenerator;
 import com.ftn.RedditClone.service.UserService;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -42,6 +52,10 @@ public class CommunityServiceImpl implements CommunityService {
     @Autowired
     CommunityElasticRepository communityElasticRepository;
 
+    @Autowired
+    PostElasticRepository postElasticRepository;
+
+
    // CommunityESMapper communityESMapper;
 
     CommunityMapper communityMapper;
@@ -50,13 +64,16 @@ public class CommunityServiceImpl implements CommunityService {
 
     ModeratorService moderatorService;
 
-    public CommunityServiceImpl (CommunityRepository communityRepository, CommunityMapper communityMapper, UserService userService,ModeratorService moderatorService,CommunityElasticRepository communityElasticRepository){
+    ElasticsearchRestTemplate elasticsearchRestTemplate;
+
+    public CommunityServiceImpl (CommunityRepository communityRepository, CommunityMapper communityMapper, UserService userService,ModeratorService moderatorService,CommunityElasticRepository communityElasticRepository,ElasticsearchRestTemplate elasticsearchRestTemplate){
         this.communityMapper = communityMapper;
         this.communityRepository = communityRepository;
         this.userService = userService;
         this.moderatorService = moderatorService;
         this.communityElasticRepository = communityElasticRepository;
       //  this.communityESMapper = esMapper;
+        this.elasticsearchRestTemplate = elasticsearchRestTemplate;
     }
 
     public CommunityDto save(CommunityDto communityDto) throws IOException {
@@ -82,22 +99,27 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     public void indexUploadedFile(CommunityDto dto) throws IOException {
+        List<PostElastic> posts = new ArrayList<PostElastic>();
+
         if (dto.getFiles() == null){
             CommunityElastic communityIndexUnit = new CommunityElastic();
             communityIndexUnit.setName(dto.getName());
             communityIndexUnit.setDescription(dto.getDescription());
+            communityIndexUnit.setPosts(posts);
+            communityIndexUnit.setNumOfPosts(communityIndexUnit.getPosts().size());
             index(communityIndexUnit);
         }else{
             for (MultipartFile file : dto.getFiles()) {
                 if (file.isEmpty()) {
                     continue;
                 }
-
                 String fileName = saveUploadedFileInFolder(file);
                 if(fileName != null){
                     CommunityElastic communityIndexUnit = getHandler(fileName).getIndexUnitCommunity(new File(fileName));
                     communityIndexUnit.setName(dto.getName());
                     communityIndexUnit.setDescription(dto.getDescription());
+                    communityIndexUnit.setPosts(posts);
+                    communityIndexUnit.setNumOfPosts(communityIndexUnit.getPosts().size());
                     index(communityIndexUnit);
                 }
             }
@@ -219,6 +241,8 @@ public class CommunityServiceImpl implements CommunityService {
         return mapCommunitiesToDTO(communities);
     }
 
+
+
     public void index(CommunityDto bookDTO){
         communityElasticRepository.save(CommunityESMapper.mapDtoToCommunity(bookDTO));
     }
@@ -228,7 +252,16 @@ public class CommunityServiceImpl implements CommunityService {
 
     // REINDEX
 
-    public void reindex() {
+    public void reindex(){
+        communityElasticRepository.deleteAll();
+        //elasticsearchRestTemplate.indexOps(IndexCoordinates.of("communities")).delete();
+        elasticsearchRestTemplate.indexOps(CommunityElastic.class).delete();
+        elasticsearchRestTemplate.indexOps(CommunityElastic.class).create();
+    }
+
+
+
+    public void reindexFromFile() {
         File dataDir = new File(filesPath);
         indexUnitFromFile(dataDir);
     }
@@ -269,9 +302,46 @@ public class CommunityServiceImpl implements CommunityService {
 
     private List<CommunityResponseElastic> mapCommunitiesToDTO(List<CommunityElastic> communities){
         List<CommunityResponseElastic> communitiesDTO = new ArrayList<>();
+
         for(CommunityElastic community : communities){
-            communitiesDTO.add(CommunityESMapper.mapCommunityToDto(community));
+
+            CommunityResponseElastic response = CommunityResponseElastic.builder()
+                    .id(community.getId())
+                    .name(community.getName())
+                    .numOfPosts(community.getPosts().size())
+                    .averageKarma(CommunityESMapper.averageKarma(postElasticRepository.findAllByCommunityName(community.getName())))
+                    .build();
+
+            communitiesDTO.add(response);
+//            communitiesDTO.add(CommunityESMapper.mapCommunityToDto(community));
         }
         return communitiesDTO;
+    }
+
+    @Override
+    public List<CommunityResponseElastic> findByNumOfPosts(int from, int to) {
+        String range = from + "-" + to;
+        QueryBuilder numbOfPostsQuery = SearchQueryGenerator.createRangeQueryBuilder(new SimpleQueryEs("numOfPosts", range));
+        List<CommunityResponseElastic> response = CommunityESMapper.mapDtos(searchByBoolQuery(numbOfPostsQuery));
+
+        for(CommunityResponseElastic community : response){
+            community.setAverageKarma(CommunityESMapper.averageKarma(postElasticRepository.findAllByCommunityName(community.getName())));
+        }
+        return response;
+
+    }
+
+    @Override
+    public void deleteAll() {
+        communityElasticRepository.deleteAll();
+    }
+
+    private SearchHits<CommunityElastic> searchByBoolQuery(QueryBuilder boolQueryBuilder) {
+
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(boolQueryBuilder)
+                .build();
+
+        return elasticsearchRestTemplate.search(searchQuery, CommunityElastic.class,  IndexCoordinates.of("communities"));
     }
 }
