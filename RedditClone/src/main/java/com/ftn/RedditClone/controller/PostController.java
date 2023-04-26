@@ -1,13 +1,12 @@
 package com.ftn.RedditClone.controller;
 
 
+import com.ftn.RedditClone.elasticRepository.PostElasticRepository;
 import com.ftn.RedditClone.mapper.PostMapper;
 import com.ftn.RedditClone.model.entity.Flair;
 import com.ftn.RedditClone.model.entity.Post;
-import com.ftn.RedditClone.model.entity.dto.DescriptionDto;
-import com.ftn.RedditClone.model.entity.dto.PostRequest;
-import com.ftn.RedditClone.model.entity.dto.PostResponse;
-import com.ftn.RedditClone.model.entity.dto.PostResponseElastic;
+import com.ftn.RedditClone.model.entity.dto.*;
+import com.ftn.RedditClone.model.entity.elastic.PostElastic;
 import com.ftn.RedditClone.repository.FlairRepository;
 import com.ftn.RedditClone.repository.PostRepository;
 import com.ftn.RedditClone.service.PostService;
@@ -39,7 +38,8 @@ public class PostController {
     @Autowired
     PostRepository postRepository;
 
-
+    @Autowired
+    PostElasticRepository postElasticRepository;
 
 
     @PostMapping
@@ -87,7 +87,6 @@ public class PostController {
         }else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
         //        if(post != null){
 //            postService.removePost(id);
 //            return new ResponseEntity<>(HttpStatus.OK);
@@ -96,11 +95,13 @@ public class PostController {
 //        }
     }
 
+// TODO : prebaci logiku u servis ; dodati pdf?
 
     @PutMapping(value = "edit/{id}")
     public ResponseEntity<PostResponse> updatePost( @RequestBody PostRequest postRequest, @PathVariable Long id){
 
         Post post = postService.findPost(id);
+        PostElastic postElastic = postService.findByName(post.getTitle());
 
         if (post == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -109,6 +110,8 @@ public class PostController {
             if(postRequest.getPostName() != "" && postRequest.getText() != "") {
                 post.setText(postRequest.getText());
                 post.setTitle(postRequest.getPostName());
+                postElastic.setDescription(postRequest.getText());
+                postElastic.setName(postRequest.getPostName());
             }
 
             Flair flair = flairRepository.findByName(postRequest.getFlair());
@@ -121,7 +124,7 @@ public class PostController {
             }
 
             post = postRepository.save(post);
-
+            postElasticRepository.save(postElastic);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(postMapper.mapToDto(post));
         }
@@ -149,5 +152,15 @@ public class PostController {
     public List<PostResponseElastic> getAllByCommunityName(@PathVariable String name){
        return postService.findByCommunityName(name);
     }
+
+    @GetMapping("karma")
+    public List<PostResponseElastic> getByKarmaRange(@RequestParam(name = "from") Integer from, @RequestParam(name = "to") Integer to) {
+        return postService.findByKarma(from, to);
+    }
+    @GetMapping("find")
+    public List<PostResponseElastic> getPosts(@RequestBody PostSearchParams params){
+        return postService.find(params);
+    }
+
 
 }

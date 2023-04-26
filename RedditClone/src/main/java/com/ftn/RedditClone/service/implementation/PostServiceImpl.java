@@ -8,18 +8,24 @@ import com.ftn.RedditClone.lucene.indexing.handlers.*;
 import com.ftn.RedditClone.mapper.PostMapper;
 import com.ftn.RedditClone.mapper.elastic.PostESMapper;
 import com.ftn.RedditClone.model.entity.*;
-import com.ftn.RedditClone.model.entity.dto.PostRequest;
-import com.ftn.RedditClone.model.entity.dto.PostResponse;
-import com.ftn.RedditClone.model.entity.dto.PostResponseElastic;
+import com.ftn.RedditClone.model.entity.dto.*;
 import com.ftn.RedditClone.model.entity.elastic.CommunityElastic;
 import com.ftn.RedditClone.model.entity.elastic.PostElastic;
 import com.ftn.RedditClone.repository.*;
 import com.ftn.RedditClone.service.PostService;
+import com.ftn.RedditClone.service.SearchQueryGenerator;
 import com.ftn.RedditClone.service.UserService;
 import lombok.AllArgsConstructor;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -113,7 +119,8 @@ public class PostServiceImpl implements PostService {
             PostElastic postIndexUnit = PostESMapper.mapDtoToPost(dto);
             index(postIndexUnit);
 
-           // communityElastic.setNumOfPosts(communityElastic.getPosts().size() + 1);
+            int posts = postElasticRepository.findAllByCommunityName(communityElastic.getName()).size() ;
+            communityElastic.setNumOfPosts(posts);
             communityElastic.getPosts().add(postIndexUnit);
             communityElasticRepository.save(communityElastic);
         }else{
@@ -131,7 +138,8 @@ public class PostServiceImpl implements PostService {
                     postIndexUnit.setCommunityName(dto.getCommunityName());
                     index(postIndexUnit);
 
-
+                    int posts = postElasticRepository.findAllByCommunityName(communityElastic.getName()).size();
+                    communityElastic.setNumOfPosts(posts);
                     communityElastic.getPosts().add(postIndexUnit);
                     communityElasticRepository.save(communityElastic);
                     //operations.refresh(CommunityElastic.class);
@@ -248,8 +256,6 @@ public class PostServiceImpl implements PostService {
             CommunityElastic communityElastic = communityElasticRepository.findByName(postElastic.getCommunityName());
             communityElastic.getPosts().remove(postElastic);
 
-            operations.refresh(PostElastic.class);
-            operations.refresh(CommunityElastic.class);
             return true;
         }
     }
@@ -258,6 +264,11 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseElastic> findAllByName(String name) {
         List<PostElastic> posts = postElasticRepository.findAllByName(name);
         return mapPostsToDTO(posts);
+    }
+
+    @Override
+    public PostElastic findByName(String name) {
+        return postElasticRepository.findByName(name);
     }
 
     @Override
@@ -276,6 +287,89 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseElastic> findByCommunityName(String name) {
         List<PostElastic> posts = postElasticRepository.findAllByCommunityName(name);
         return mapPostsToDTO(posts);
+    }
+
+    @Override
+    public List<PostResponseElastic> findByKarma(Integer from, Integer to) {
+        if(from != null || to != null){
+            if(from == null || from < 0){
+                from = 0;
+            }
+            if(to == null || to < 0){
+                to = Integer.MAX_VALUE;
+            }
+        }
+        String range = from + "-" + to;
+        QueryBuilder karmaQuery = SearchQueryGenerator.createRangeQueryBuilder(new SimpleQueryEs("reactionCount", range));
+        List<PostResponseElastic> response = PostESMapper.mapDtos(searchByBoolQuery(karmaQuery));
+
+        return response;
+
+    }
+
+    @Override
+    public List<PostResponseElastic> find(PostSearchParams params) {
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        String operatorUpper = params.getOperator().toUpperCase();
+        List<PostResponseElastic> response = new ArrayList<>();
+
+        if ((!params.getName().isBlank()) && (!params.getDescription().isBlank())) {
+
+            QueryBuilder findByName = SearchQueryGenerator.createMatchQueryBuilder(
+                    new SimpleQueryEs("name", params.getName()));
+
+            QueryBuilder findByDescription = SearchQueryGenerator.createMatchQueryBuilder(
+                    new SimpleQueryEs("description", params.getDescription()));
+
+            if (operatorUpper.equalsIgnoreCase("AND")) {
+                boolQuery.must(findByName).must(findByDescription);
+            } else {
+                boolQuery.should(findByName).should(findByDescription);
+            }
+            response = PostESMapper.mapDtos(searchByBoolQuery(boolQuery));
+        }
+
+
+        if ((params.getMinKarma() != null || params.getMaxKarma() != null) && !params.getName().isBlank()) {
+
+            Integer minNum = 0;
+            if(params.getMinKarma() == null || params.getMinKarma() < 0){
+                params.setMinKarma(minNum);
+
+            }
+
+            //Integer maxNum = params.getMaxNumOfPosts() != null ? params.getMaxNumOfPosts() : Integer.MAX_VALUE;
+            Integer maxNum = Integer.MAX_VALUE ;
+            if(params.getMaxKarma() == null || params.getMinKarma() < 0){
+                params.setMaxKarma(maxNum);
+
+            }
+
+            String range = params.getMinKarma() + "-" + params.getMaxKarma();
+            QueryBuilder karmaQuery = SearchQueryGenerator.createRangeQueryBuilder(new SimpleQueryEs("reactionCount", range));
+
+            QueryBuilder findByName = SearchQueryGenerator.createMatchQueryBuilder(
+                    new SimpleQueryEs("name", params.getName()));
+
+            if (operatorUpper.equalsIgnoreCase("AND")) {
+                boolQuery.must(karmaQuery).must(findByName);
+            } else if (operatorUpper.equalsIgnoreCase("OR")) {
+                boolQuery.should(karmaQuery).should(findByName);
+            }
+            response = PostESMapper.mapDtos(searchByBoolQuery(boolQuery));
+        }
+
+
+        return response;
+    }
+
+    private SearchHits<PostElastic> searchByBoolQuery(QueryBuilder boolQueryBuilder) {
+
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(boolQueryBuilder)
+                .build();
+
+        return elasticsearchRestTemplate.search(searchQuery, PostElastic.class,  IndexCoordinates.of("posts"));
     }
 
 }

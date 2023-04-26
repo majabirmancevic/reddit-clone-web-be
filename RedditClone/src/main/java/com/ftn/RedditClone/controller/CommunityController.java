@@ -4,6 +4,7 @@ import com.ftn.RedditClone.mapper.CommunityMapper;
 import com.ftn.RedditClone.model.entity.Community;
 import com.ftn.RedditClone.model.entity.dto.CommunityDto;
 import com.ftn.RedditClone.model.entity.dto.CommunityResponseElastic;
+import com.ftn.RedditClone.model.entity.dto.CommunitySearchParams;
 import com.ftn.RedditClone.model.entity.dto.DescriptionDto;
 import com.ftn.RedditClone.model.entity.elastic.CommunityElastic;
 import com.ftn.RedditClone.repository.CommunityRepository;
@@ -101,7 +102,7 @@ public class CommunityController {
     }
 
     @GetMapping("name/{name}")
-    public List<CommunityResponseElastic> findCommunityByName(@PathVariable String name){
+    public List<CommunityResponseElastic> findCommunityByName(@PathVariable("name") String name){
         return communityService.findAllByName(name);
     }
     @GetMapping("description")
@@ -114,7 +115,7 @@ public class CommunityController {
     }
 
     @GetMapping("numOfPosts")
-    public List<CommunityResponseElastic> getByNumOfPostsRange(@RequestParam(name = "from") int from, @RequestParam(name = "to") int to) {
+    public List<CommunityResponseElastic> getByNumOfPostsRange(@RequestParam(name = "from") Integer from, @RequestParam(name = "to") Integer to) {
         return communityService.findByNumOfPosts(from, to);
     }
 
@@ -127,5 +128,10 @@ public class CommunityController {
     @GetMapping("reindex")
     public void reindex(){
         communityService.reindex();
+    }
+
+    @GetMapping("find")
+    public List<CommunityResponseElastic> getCommunities(@RequestBody CommunitySearchParams params){
+        return communityService.find(params);
     }
 }

@@ -29,7 +29,7 @@ public class PostElastic {
     @Field(type = FieldType.Text)
     private String communityName;
     @Field(type = FieldType.Integer)
-    private Integer reactionCount ;
+    private Integer reactionCount;
 
     @Field(type = FieldType.Keyword)
     private String keywords;

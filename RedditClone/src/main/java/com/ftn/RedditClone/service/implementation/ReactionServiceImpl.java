@@ -27,6 +27,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static com.ftn.RedditClone.model.entity.ReactionType.UPVOTE;
@@ -90,9 +91,17 @@ public class ReactionServiceImpl implements ReactionService {
         }
         reactionRepository.save(mapToReaction(reactionDto, post));
         postRepository.save(post);
-
         postElasticRepository.save(postElastic);
+
         CommunityElastic communityElastic = communityElasticRepository.findByName(postElastic.getCommunityName());
+        List<PostElastic> newPosts = communityElastic.getPosts();
+        for(PostElastic it : newPosts){
+            if(it.getId().equals(postElastic.getId())){
+                it.setReactionCount(postElastic.getReactionCount());
+                communityElastic.setPosts(newPosts);
+                communityElasticRepository.save(communityElastic);
+            }
+        }
 //        if(communityElastic.getPosts() == null){
 //         communityElastic.setPosts(postElasticRepository.findByCommunityName(postElastic.getCommunityName()));
 //        }
@@ -102,7 +111,7 @@ public class ReactionServiceImpl implements ReactionService {
         //communityElastic.getPosts().add(postElastic);
         //communityElasticRepository.save(communityElastic);
 
-        updateReactionElastic(postElastic,postElastic.getReactionCount());
+       // updateReactionElastic(postElastic,postElastic.getReactionCount());
 
 
     }

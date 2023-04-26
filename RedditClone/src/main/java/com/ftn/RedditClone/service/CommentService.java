@@ -14,4 +14,6 @@ public interface CommentService {
     Comment findComment(Long id);
     List<CommentDTO> getAllFromParentId(Long id);
 
+
+
 }

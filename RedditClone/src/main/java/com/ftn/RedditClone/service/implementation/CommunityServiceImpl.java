@@ -11,6 +11,7 @@ import com.ftn.RedditClone.model.entity.Moderator;
 import com.ftn.RedditClone.model.entity.User;
 import com.ftn.RedditClone.model.entity.dto.CommunityDto;
 import com.ftn.RedditClone.model.entity.dto.CommunityResponseElastic;
+import com.ftn.RedditClone.model.entity.dto.CommunitySearchParams;
 import com.ftn.RedditClone.model.entity.dto.SimpleQueryEs;
 import com.ftn.RedditClone.model.entity.elastic.CommunityElastic;
 import com.ftn.RedditClone.model.entity.elastic.PostElastic;
@@ -19,7 +20,9 @@ import com.ftn.RedditClone.service.CommunityService;
 import com.ftn.RedditClone.service.ModeratorService;
 import com.ftn.RedditClone.service.SearchQueryGenerator;
 import com.ftn.RedditClone.service.UserService;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -190,6 +193,9 @@ public class CommunityServiceImpl implements CommunityService {
         community.setSuspended(true);
         community.setSuspendedReason(suspendedReason);
         community.setUser(null);
+
+        CommunityElastic communityElastic = communityElasticRepository.findByName(community.getName());
+        communityElasticRepository.delete(communityElastic);
         return communityRepository.save(community);
     }
 
@@ -210,13 +216,16 @@ public class CommunityServiceImpl implements CommunityService {
     public Community editCommunity(CommunityDto dto, Long id) {
 
         Community community = communityRepository.findById(id).orElseThrow(() -> new SpringRedditException("No community found with ID - " + id));
+        CommunityElastic communityElastic = communityElasticRepository.findByName(community.getName());
 
         if(community != null){
             if (dto.getDescription() != "") {
                 community.setDescription(dto.getDescription());
+                communityElastic.setDescription(dto.getDescription());
             }
             if(dto.getName() != ""){
                 community.setName(dto.getName());
+                communityElastic.setName(dto.getName());
             }
             communityRepository.save(community);
         }
@@ -254,7 +263,6 @@ public class CommunityServiceImpl implements CommunityService {
 
     public void reindex(){
         communityElasticRepository.deleteAll();
-        //elasticsearchRestTemplate.indexOps(IndexCoordinates.of("communities")).delete();
         elasticsearchRestTemplate.indexOps(CommunityElastic.class).delete();
         elasticsearchRestTemplate.indexOps(CommunityElastic.class).create();
     }
@@ -319,7 +327,17 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<CommunityResponseElastic> findByNumOfPosts(int from, int to) {
+    public List<CommunityResponseElastic> findByNumOfPosts(Integer from, Integer to) {
+
+        if(from != null || to != null){
+            if(from == null || from < 0){
+                from = 0;
+            }
+            else if(to == null || to < 0){
+                to = Integer.MAX_VALUE;
+            }
+        }
+
         String range = from + "-" + to;
         QueryBuilder numbOfPostsQuery = SearchQueryGenerator.createRangeQueryBuilder(new SimpleQueryEs("numOfPosts", range));
         List<CommunityResponseElastic> response = CommunityESMapper.mapDtos(searchByBoolQuery(numbOfPostsQuery));
@@ -332,9 +350,68 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public List<CommunityResponseElastic> find(CommunitySearchParams params) {
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        String operatorUpper = params.getOperator().toUpperCase();
+        List<CommunityResponseElastic> response = new ArrayList<>();
+
+        if ((!params.getName().isBlank()) && (!params.getDescription().isBlank())) {
+
+             QueryBuilder findByName = SearchQueryGenerator.createMatchQueryBuilder(
+                    new SimpleQueryEs("name", params.getName()));
+
+            QueryBuilder findByDescription = SearchQueryGenerator.createMatchQueryBuilder(
+                    new SimpleQueryEs("description", params.getDescription()));
+
+            if (operatorUpper.equalsIgnoreCase("AND")) {
+                 boolQuery.must(findByName).must(findByDescription);
+            } else {
+                boolQuery.should(findByName).should(findByDescription);
+            }
+            response = CommunityESMapper.mapDtos(searchByBoolQuery(boolQuery));
+        }
+
+
+        if ((params.getMinNumOfPosts() != null || params.getMaxNumOfPosts() != null) && !params.getName().isBlank()) {
+
+            Integer minNum = 0;
+            if(params.getMinNumOfPosts() == null || params.getMinNumOfPosts() < 0){
+                params.setMinNumOfPosts(minNum) ;
+            }
+
+            //Integer maxNum = params.getMaxNumOfPosts() != null ? params.getMaxNumOfPosts() : Integer.MAX_VALUE;
+            Integer maxNum = Integer.MAX_VALUE ;
+            if(params.getMaxNumOfPosts() == null || params.getMaxNumOfPosts() < 0){
+                params.setMaxNumOfPosts(maxNum) ;
+            }
+
+            String range = params.getMinNumOfPosts() + "-" + params.getMaxNumOfPosts();
+            QueryBuilder numbOfPostsQuery = SearchQueryGenerator.createRangeQueryBuilder(new SimpleQueryEs("numOfPosts", range));
+
+            QueryBuilder findByName = SearchQueryGenerator.createMatchQueryBuilder(
+                    new SimpleQueryEs("name", params.getName()));
+
+            if (operatorUpper.equalsIgnoreCase("AND")) {
+                boolQuery.must(numbOfPostsQuery).must(findByName);
+            } else if (operatorUpper.equalsIgnoreCase("OR")) {
+                boolQuery.should(numbOfPostsQuery).should(findByName);
+            }
+            response = CommunityESMapper.mapDtos(searchByBoolQuery(boolQuery));
+        }
+
+        for (CommunityResponseElastic community : response) {
+            community.setAverageKarma(CommunityESMapper.averageKarma(postElasticRepository.findAllByCommunityName(community.getName())));
+        }
+
+        return response;
+    }
+
+    @Override
     public void deleteAll() {
         communityElasticRepository.deleteAll();
     }
+
+
 
     private SearchHits<CommunityElastic> searchByBoolQuery(QueryBuilder boolQueryBuilder) {
 
@@ -344,4 +421,6 @@ public class CommunityServiceImpl implements CommunityService {
 
         return elasticsearchRestTemplate.search(searchQuery, CommunityElastic.class,  IndexCoordinates.of("communities"));
     }
+
+
 }
