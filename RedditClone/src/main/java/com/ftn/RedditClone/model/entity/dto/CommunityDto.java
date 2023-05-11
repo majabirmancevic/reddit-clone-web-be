@@ -20,6 +20,5 @@ public class CommunityDto {
     private String description;
     private Integer numberOfPosts;
     private Long userId;
-
     private MultipartFile[] files;
 }

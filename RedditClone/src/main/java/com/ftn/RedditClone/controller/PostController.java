@@ -42,8 +42,14 @@ public class PostController {
     PostElasticRepository postElasticRepository;
 
 
-    @PostMapping
+    @PostMapping(consumes = {"multipart/form-data","application/json"})
     public ResponseEntity<Void> createPost(@Valid @ModelAttribute PostRequest postRequest) throws IOException {
+        postService.save(postRequest);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("create")
+    public ResponseEntity<Void> createPostWithoutFile(@Valid @ModelAttribute PostRequest postRequest) throws IOException {
         postService.save(postRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -134,11 +140,11 @@ public class PostController {
     public List<PostResponseElastic> findPostByName(@PathVariable String name){
         return postService.findAllByName(name);
     }
-    @GetMapping("description")
+    @PostMapping("description")
     public List<PostResponseElastic> findPostByDescription(@RequestBody DescriptionDto dto){
         return postService.findAllByDescription(dto.getText());
     }
-    @GetMapping("description/file")
+    @PostMapping("description/file")
     public List<PostResponseElastic> findPostByDescriptionFromFile(@RequestBody DescriptionDto dto){
         return postService.findAllByDescriptionFromFile(dto.getText());
     }
@@ -157,7 +163,7 @@ public class PostController {
     public List<PostResponseElastic> getByKarmaRange(@RequestParam(name = "from") Integer from, @RequestParam(name = "to") Integer to) {
         return postService.findByKarma(from, to);
     }
-    @GetMapping("find")
+    @PostMapping("find")
     public List<PostResponseElastic> getPosts(@RequestBody PostSearchParams params){
         return postService.find(params);
     }

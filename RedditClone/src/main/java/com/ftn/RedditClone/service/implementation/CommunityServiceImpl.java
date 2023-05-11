@@ -329,14 +329,13 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public List<CommunityResponseElastic> findByNumOfPosts(Integer from, Integer to) {
 
-        if(from != null || to != null){
-            if(from == null || from < 0){
-                from = 0;
-            }
-            else if(to == null || to < 0){
-                to = Integer.MAX_VALUE;
-            }
-        }
+
+       if(from == null || from < 0){
+           from = 0;
+       }
+       if(to == null || to < 0){
+           to = Integer.MAX_VALUE;
+       }
 
         String range = from + "-" + to;
         QueryBuilder numbOfPostsQuery = SearchQueryGenerator.createRangeQueryBuilder(new SimpleQueryEs("numOfPosts", range));

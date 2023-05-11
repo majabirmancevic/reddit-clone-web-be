@@ -37,10 +37,11 @@ public class CommunityController {
 
 
 
-    @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<CommunityDto> createCommunity(@Valid @ModelAttribute CommunityDto communityDto) throws IOException {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(communityService.save(communityDto));
+    @PostMapping(consumes = {"multipart/form-data","application/json"})
+    public ResponseEntity<Void> createCommunity(@Valid @ModelAttribute CommunityDto communityDto) throws IOException {
+        communityService.save(communityDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+
     }
 
     @GetMapping
@@ -105,11 +106,11 @@ public class CommunityController {
     public List<CommunityResponseElastic> findCommunityByName(@PathVariable("name") String name){
         return communityService.findAllByName(name);
     }
-    @GetMapping("description")
+    @PostMapping("description")
     public List<CommunityResponseElastic> findCommunityByDescription(@RequestBody DescriptionDto dto){
         return communityService.findAllByDescription(dto.getText());
     }
-    @GetMapping("description/file")
+    @PostMapping("description/file")
     public List<CommunityResponseElastic> findCommunityByDescriptionFromFile(@RequestBody DescriptionDto dto){
         return communityService.findAllByDescriptionFromFile(dto.getText());
     }
@@ -130,7 +131,7 @@ public class CommunityController {
         communityService.reindex();
     }
 
-    @GetMapping("find")
+    @PostMapping("find")
     public List<CommunityResponseElastic> getCommunities(@RequestBody CommunitySearchParams params){
         return communityService.find(params);
     }

@@ -216,7 +216,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostResponse> getAllPosts() {
-        return postRepository.findAll()
+        return postRepository.findAllByOrderByIdDesc()
                 .stream()
                 .map(postMapper::mapToDto)
                 .collect(toList());
@@ -291,13 +291,11 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostResponseElastic> findByKarma(Integer from, Integer to) {
-        if(from != null || to != null){
-            if(from == null || from < 0){
-                from = 0;
-            }
-            if(to == null || to < 0){
-                to = Integer.MAX_VALUE;
-            }
+        if(from == null || from < 0){
+            from = 0;
+        }
+        if(to == null || to < 0){
+            to = Integer.MAX_VALUE;
         }
         String range = from + "-" + to;
         QueryBuilder karmaQuery = SearchQueryGenerator.createRangeQueryBuilder(new SimpleQueryEs("reactionCount", range));
